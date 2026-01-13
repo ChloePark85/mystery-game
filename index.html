@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>0의 집행 - Choose Your Own Adventure (Full Version)</title>
+    <title>0의 집행</title>
     <style>
         * {
             margin: 0;
@@ -274,7 +274,7 @@
 
         <!-- 상단 정보 -->
         <div class="vn-header">
-            <div class="vn-title">0의 집행 - Choose Your Own Adventure</div>
+            <div class="vn-title">0의 집행</div>
             <div class="vn-progress">
                 <div class="vn-progress-bar" id="progressBar"></div>
             </div>
@@ -869,7 +869,8 @@
             if (selectedPath === null) {
                 // 공통 도입부
                 if (currentDialogue >= dialogues.common.length) {
-                    showDialogue();
+                    // 경로 선택이 안 된 상태로 공통 부분을 넘어섰다면 에러
+                    console.error('Path not selected after common scenes');
                     return;
                 }
                 currentData = dialogues.common[currentDialogue];
