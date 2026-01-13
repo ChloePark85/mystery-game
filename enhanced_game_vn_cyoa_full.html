@@ -988,42 +988,17 @@
         }
 
         function showChoiceFeedback(choiceType) {
-            const pathNames = {
-                detective: "🕵️ Detective Path - 논리의 승리",
-                conspiracy: "🎭 Conspiracy Path - 거대한 그림자",
-                drama: "💔 Human Drama Path - 마음의 진실",
-                evidence_route: "증거 수집 경로",
-                interrogation_route: "심문 경로",
-                government_route: "정부 음모 추적",
-                corporate_route: "기업 부패 추적",
-                emotional_route: "감정적 탐구",
-                relationship_route: "관계 회복 집중"
-            };
-
-            const feedbackDiv = document.createElement('div');
-            feedbackDiv.className = 'choice-feedback';
-            feedbackDiv.innerHTML = `🎯 선택: ${pathNames[choiceType] || choiceType}`;
-
-            const dialogueBox = document.querySelector('.vn-dialogue-box');
-            dialogueBox.appendChild(feedbackDiv);
+            // 경로 표시 기능 제거 - 선택 피드백 없음
+            return;
         }
 
         function updatePathIndicator() {
+            // 경로 표시 기능 제거
             const pathIndicator = document.getElementById('pathIndicator');
-
-            if (selectedPath) {
-                const pathNames = {
-                    detective: "🕵️ Detective Path",
-                    conspiracy: "🎭 Conspiracy Path",
-                    drama: "💔 Drama Path"
-                };
-
-                pathIndicator.textContent = pathNames[selectedPath];
-                pathIndicator.className = `vn-path-indicator path-${selectedPath}`;
-                pathIndicator.style.display = 'inline-block';
-            } else {
+            if (pathIndicator) {
                 pathIndicator.style.display = 'none';
             }
+            return;
         }
 
         function updateProgress() {
