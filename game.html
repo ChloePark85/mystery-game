@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0의 집행 (Execution of Zero)</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .game-text {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .character {
+            font-weight: bold;
+            color: #ffaa00;
+        }
+
+        .evidence {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 4px solid #00ff41;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .choices {
+            margin: 20px 0;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .choice-btn:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .phase-header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid #ffaa00;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #ffaa00;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .typing {
+            border-right: 2px solid #00ff41;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { border-color: #00ff41; }
+            51%, 100% { border-color: transparent; }
+        }
+
+        .evidence-icon {
+            color: #ffaa00;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>0의 집행</h1>
+        <div class="subtitle">(Execution of Zero)</div>
+
+        <div id="game-content">
+            <!-- 게임 내용이 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <div id="choices" class="choices hidden">
+            <!-- 선택지가 여기에 표시됩니다 -->
+        </div>
+
+        <div id="continue-btn" class="hidden">
+            <button class="choice-btn" onclick="nextScene()">계속하기</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScene = 0;
+        let evidenceFound = [];
+        let gameContent = document.getElementById('game-content');
+        let choicesDiv = document.getElementById('choices');
+        let continueBtn = document.getElementById('continue-btn');
+
+        const scenes = [
+            {
+                type: 'intro',
+                content: `
+                    <div class="game-text">
+                        <strong>2024년 3월 15일, 오후 11시 30분.</strong><br>
+                        서울 강남구 소재 초호화 스마트 맨션 '아르카디아'.<br>
+                        모든 것이 IoT로 연결된 이 집에서, 불가능한 일이 벌어졌다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 데이터는 거짓말을 하지 않는다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;하지만 데이터를 해석하는 인간은 거짓말을 한다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[경찰]</span> 진 탐정님, 현장은 이쪽입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;피해자는 강박사... 천재 로봇 공학자였죠.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;지하 연구실에서 자신이 개발한 로봇 팔에<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;목이 눌려 사망했습니다.
+                    </div>
+                `
+            },
+            {
+                type: 'investigation',
+                content: `
+                    <div class="phase-header">현장 조사</div>
+                    <div class="game-text">
+                        지하 2층 연구실.<br>
+                        공기는 멸균실처럼 차갑고, 피비린내 대신 기계유 냄새가 감돈다.<br>
+                        시체는 이미 치워졌고, 거대한 산업용 로봇 팔만이 덩그러니 서 있다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 범죄 현장에서 가장 중요한 건<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;첫인상이 아니라 마지막 데이터다.
+                    </div>
+                `,
+                choices: ['로봇 팔 검사', '제어 패널 확인', '연구실 환경 조사']
+            },
+            {
+                type: 'interrogation',
+                content: `
+                    <div class="phase-header">심문</div>
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span>수집한 증거:<br>
+                        • 로봇 팔 관절의 넥타이 섬유<br>
+                        • 21:00 SHUTDOWN SEQUENCE 로그<br>
+                        • 21:00 전력 사용 패턴 이상
+                    </div>
+
+                    <div class="game-text">
+                        <strong>💭 유지민(조교)과의 대화:</strong><br><br>
+                        <span class="character">[유지민]</span> 저는 8시 50분에 집을 나갔어요.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9시에 교수님이 '커피 머신 돌려놔'라고<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;말씀하시는 걸 들었어요.
+                    </div>
+
+                    <div class="game-text">
+                        <strong>🤖 AI 노아와의 대화:</strong><br><br>
+                        <span class="character">[AI 노아]</span> 21시 정각 기준으로<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;거실의 소음 데시벨은 40dB로 평온했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;로봇 연구실의 전력 사용량은 0입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;오디오 센서 기록: 0 bytes
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span>모순 발견!<br>
+                        유지민은 9시에 목소리를 들었다고 했지만<br>
+                        오디오 센서는 0바이트를 기록했다.
+                    </div>
+                `
+            },
+            {
+                type: 'deduction',
+                content: `
+                    <div class="phase-header">추리</div>
+                    <div class="game-text">
+                        <span class="character">[진]</span> 추가 증거를 발견했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사의 스마트워치 생체 데이터:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20:55에 심박수가 45에서 120으로 급상승!
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span>핵심 단서:<br>
+                        • 유지민의 거짓 증언 (오디오 로그와 모순)<br>
+                        • 강박사의 20:55 심박수 급상승<br>
+                        • 로봇 팔 관절의 넥타이 섬유<br>
+                        • 21:00 SHUTDOWN SEQUENCE
+                    </div>
+
+                    <div class="game-text">누가 범인일까요?</div>
+                `,
+                choices: ['유지민이 범인이다', '한기태가 범인이다', 'AI 노아가 오작동했다']
+            }
+        ];
+
+        function startGame() {
+            showScene(currentScene);
+        }
+
+        function showScene(sceneIndex) {
+            const scene = scenes[sceneIndex];
+            gameContent.innerHTML = scene.content;
+
+            if (scene.choices) {
+                showChoices(scene.choices, sceneIndex);
+            } else {
+                showContinueButton();
+            }
+
+            // 스크롤을 맨 아래로
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function showChoices(choices, sceneIndex) {
+            choicesDiv.innerHTML = '';
+            choicesDiv.classList.remove('hidden');
+            continueBtn.classList.add('hidden');
+
+            choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice;
+                btn.onclick = () => handleChoice(sceneIndex, index);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function showContinueButton() {
+            choicesDiv.classList.add('hidden');
+            continueBtn.classList.remove('hidden');
+        }
+
+        function handleChoice(sceneIndex, choiceIndex) {
+            if (sceneIndex === 1) { // 현장 조사
+                handleInvestigationChoice(choiceIndex);
+            } else if (sceneIndex === 3) { // 추리
+                handleDeductionChoice(choiceIndex);
+            }
+        }
+
+        function handleInvestigationChoice(choiceIndex) {
+            let evidenceText = '';
+
+            switch(choiceIndex) {
+                case 0: // 로봇 팔 검사
+                    evidenceText = `
+                        <div class="evidence">
+                            <span class="evidence-icon">🔍</span>증거 발견!<br>
+                            로봇 팔 관절에서 넥타이 섬유 조각을 발견했다.
+                        </div>
+                    `;
+                    evidenceFound.push('robot_arm');
+                    break;
+                case 1: // 제어 패널
+                    evidenceText = `
+                        <div class="evidence">
+                            <span class="evidence-icon">🔍</span>증거 발견!<br>
+                            21:00 정각에 SHUTDOWN SEQUENCE 로그가 기록되어 있다.
+                        </div>
+                    `;
+                    evidenceFound.push('control_panel');
+                    break;
+                case 2: // 환경 조사
+                    evidenceText = `
+                        <div class="evidence">
+                            <span class="evidence-icon">🔍</span>증거 발견!<br>
+                            21:00에 블라인드와 공기청정기가 최대 출력으로 작동했다.
+                        </div>
+                    `;
+                    evidenceFound.push('environment');
+                    break;
+            }
+
+            gameContent.innerHTML += evidenceText;
+
+            if (evidenceFound.length >= 3) {
+                setTimeout(() => {
+                    currentScene = 2;
+                    showScene(currentScene);
+                }, 2000);
+            } else {
+                // 더 조사할 수 있도록 선택지 다시 표시
+                setTimeout(() => {
+                    const remainingChoices = [];
+                    if (!evidenceFound.includes('robot_arm')) remainingChoices.push('로봇 팔 검사');
+                    if (!evidenceFound.includes('control_panel')) remainingChoices.push('제어 패널 확인');
+                    if (!evidenceFound.includes('environment')) remainingChoices.push('연구실 환경 조사');
+
+                    if (remainingChoices.length > 0) {
+                        showChoices(remainingChoices, 1);
+                    } else {
+                        showContinueButton();
+                    }
+                }, 1500);
+            }
+        }
+
+        function handleDeductionChoice(choiceIndex) {
+            if (choiceIndex === 0) { // 정답: 유지민
+                showReveal(true);
+            } else {
+                showReveal(false);
+            }
+        }
+
+        function showReveal(isCorrect) {
+            let content;
+
+            if (isCorrect) {
+                content = `
+                    <div class="phase-header">진실 폭로</div>
+                    <div class="evidence">
+                        <span class="evidence-icon">🎯</span>정답!
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 유지민 씨, 당신이 범인입니다.
+                    </div>
+
+                    <div class="game-text">
+                        <strong>트릭의 정체:</strong><br>
+                        1. 넥타이를 로봇 팔 관절에 끼워둠<br>
+                        2. 21시 퇴근 모드로 로봇 팔이 초기화 자세로 이동<br>
+                        3. 전원이 꺼지면서 중력으로 팔이 떨어짐<br>
+                        4. 그 무게로 넥타이가 조여져 질식사
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 완벽한 계획이었지만...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;데이터는 모든 것을 기억하고 있었습니다.
+                    </div>
+                `;
+            } else {
+                content = `
+                    <div class="phase-header">진실 폭로</div>
+                    <div class="evidence">
+                        <span class="evidence-icon">❌</span>틀렸습니다!
+                    </div>
+
+                    <div class="game-text">
+                        정답: 유지민이 중력을 이용한 기계적 살인을 저질렀습니다.
+                    </div>
+                `;
+            }
+
+            content += `
+                <div class="phase-header">END</div>
+                <div class="game-text" style="text-align: center;">
+                    <strong>데이터는 거짓말을 하지 않는다.<br>
+                    거짓말을 하는 것은 언제나 인간이다.</strong>
+                </div>
+
+                <div class="evidence" style="text-align: center;">
+                    🎮 게임 완료!<br>
+                    SF 하드보일드 데이터 추리물 "0의 집행"을 플레이해주셔서 감사합니다.
+                </div>
+            `;
+
+            gameContent.innerHTML = content;
+            choicesDiv.classList.add('hidden');
+            continueBtn.classList.add('hidden');
+        }
+
+        function nextScene() {
+            currentScene++;
+            if (currentScene < scenes.length) {
+                showScene(currentScene);
+            }
+        }
+
+        // 게임 시작
+        startGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0의 집행 (Execution of Zero) - Enhanced</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 0 0 15px #00ff41;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .phase-indicator {
+            background: linear-gradient(90deg, #00ff41, #ffaa00);
+            color: black;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .scene-number {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+            padding: 8px 15px;
+            border-left: 4px solid #ffaa00;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .game-text {
+            line-height: 1.8;
+            margin-bottom: 25px;
+            text-align: justify;
+            font-size: 1.1em;
+        }
+
+        .character {
+            font-weight: bold;
+            color: #ffaa00;
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        .thought {
+            font-style: italic;
+            color: #88ff88;
+            border-left: 3px solid #88ff88;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+
+        .evidence {
+            background: rgba(0, 255, 65, 0.15);
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+
+        .contradiction {
+            background: rgba(255, 0, 0, 0.15);
+            border: 1px solid #ff4444;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);
+        }
+
+        .choices {
+            margin: 30px 0;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 18px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(0, 255, 65, 0.25);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .choice-btn.wrong {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .choice-btn.correct {
+            background: rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
+        }
+
+        .evidence-list {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #666;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .evidence-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 3px solid #00ff41;
+            border-radius: 3px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .evidence-icon {
+            color: #ffaa00;
+            margin-right: 8px;
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #ffaa00);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .suspicion-meter {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+
+        .suspect {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .suspect-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .suspicion-bar {
+            width: 60px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .suspicion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffaa00, #ff4444);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .hint {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid #ffaa00;
+            color: #ffaa00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>0의 집행</h1>
+        <div class="subtitle">(Execution of Zero)</div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div id="phaseIndicator" class="phase-indicator"></div>
+        <div id="sceneNumber" class="scene-number"></div>
+
+        <div id="game-content"></div>
+
+        <div id="evidenceList" class="evidence-list hidden">
+            <h3>🔍 수집한 증거</h3>
+            <div id="evidenceItems"></div>
+        </div>
+
+        <div id="suspicionMeter" class="suspicion-meter hidden">
+            <div class="suspect">
+                <div class="suspect-name">유지민</div>
+                <div class="suspicion-bar">
+                    <div class="suspicion-fill" id="yujimin-suspicion"></div>
+                </div>
+            </div>
+            <div class="suspect">
+                <div class="suspect-name">한기태</div>
+                <div class="suspicion-bar">
+                    <div class="suspicion-fill" id="hankitae-suspicion"></div>
+                </div>
+            </div>
+            <div class="suspect">
+                <div class="suspect-name">AI 노아</div>
+                <div class="suspicion-bar">
+                    <div class="suspicion-fill" id="noah-suspicion"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="choices" class="choices hidden"></div>
+
+        <div id="continue-btn" class="hidden">
+            <button class="choice-btn" onclick="nextScene()">계속하기</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScene = 0;
+        let evidenceFound = [];
+        let suspicion = {yujimin: 0, hankitae: 0, noah: 0};
+        let wrongChoices = 0;
+
+        const totalScenes = 25;
+
+        const scenes = [
+            // Phase 1: 도입부 (1-4)
+            {
+                phase: "Phase 1: 사건 발생",
+                title: "Scene 1: 긴급 호출",
+                content: `
+                    <div class="game-text">
+                        <strong>2024년 3월 15일, 오후 11시 30분</strong><br>
+                        서울 강남구 데이터 포렌식 사무소
+                    </div>
+
+                    <div class="game-text">
+                        전화벨이 울린다. 밤늦은 시간의 호출은 보통 중요한 사건을 의미한다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[경찰서]</span> 진 탐정님, 긴급사건입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강남구 아르카디아 맨션에서 의문사가 발생했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;현장으로 출동 가능하십니까?
+                    </div>
+
+                    <div class="thought">
+                        또 다른 데이터 퍼즐이 시작된다. 인간은 거짓말을 하지만, 데이터는 그렇지 않다.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 1: 사건 발생",
+                title: "Scene 2: 현장 도착",
+                content: `
+                    <div class="game-text">
+                        아르카디아 맨션 앞. 초고층 유리 건물이 네온사인으로 빛나고 있다.<br>
+                        경찰차 서너 대가 입구를 막고 있고, 포렌식 팀이 분주히 움직인다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 데이터는 거짓말을 하지 않는다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;하지만 데이터를 해석하는 인간은 거짓말을 한다.
+                    </div>
+
+                    <div class="game-text">
+                        건물의 모든 창문에는 스마트 블라인드가 설치되어 있고,<br>
+                        IoT 센서들이 깜빡이며 24시간 데이터를 수집하고 있다.
+                    </div>
+
+                    <div class="thought">
+                        완벽한 스마트 홈... 모든 것이 기록된다. 진실도, 거짓말도.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 1: 사건 발생",
+                title: "Scene 3: 사건 브리핑",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[경찰관]</span> 피해자는 강박사, 52세입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;세계적인 로봇 공학자죠.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;지하 2층 개인 연구실에서 발견되었습니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 사인은?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[경찰관]</span> 질식사로 추정됩니다. 목에 압박 흔적이 있어요.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;문제는... 자신이 개발한 로봇 팔 옆에서 발견되었는데<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;로봇의 전원은 꺼져 있었습니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 전원이 꺼진 기계가 사람을 죽였다?<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;물리적으로 불가능한 일이군요.
+                    </div>
+
+                    <div class="thought">
+                        불가능한 범죄... 하지만 데이터는 불가능을 가능하게 만든다.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 1: 사건 발생",
+                title: "Scene 4: 연구실 입장",
+                content: `
+                    <div class="game-text">
+                        지하 2층으로 내려간다. 엘리베이터 문이 열리자 차가운 공기가 얼굴을 때린다.
+                    </div>
+
+                    <div class="game-text">
+                        연구실은 멸균실처럼 깨끗하다. 흰 벽, 은색 장비들, 그리고 중앙에<br>
+                        거대한 산업용 로봇 팔이 조용히 서 있다.
+                    </div>
+
+                    <div class="game-text">
+                        피비린내 대신 기계유와 소독제 냄새가 감돈다.<br>
+                        시체는 이미 부검을 위해 옮겨졌다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 범죄 현장에서 가장 중요한 건 첫인상이 아니라<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;마지막 데이터입니다.
+                    </div>
+
+                    <div class="thought">
+                        이 조용한 연구실에서 무슨 일이 벌어졌을까? 데이터가 답을 알고 있을 것이다.
+                    </div>
+                `
+            },
+
+            // Phase 2: 현장 조사 (5-10)
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 5: 연구실 전체 관찰",
+                content: `
+                    <div class="game-text">
+                        연구실을 천천히 둘러본다. 모든 것이 완벽하게 정리되어 있다.<br>
+                        실험 도구들은 제자리에, 서류들은 깔끔하게 정렬되어 있다.
+                    </div>
+
+                    <div class="game-text">
+                        하지만 뭔가 이상하다. 너무 완벽하다.<br>
+                        투쟁의 흔적도, 저항의 증거도 없다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 정돈된 살인현장... 계획적 범행의 징후입니다.
+                    </div>
+
+                    <div class="thought">
+                        범인은 시간이 충분했다. 아니면 저항할 틈을 주지 않을 만큼 빨랐거나.
+                    </div>
+                `,
+                choices: ['로봇 팔 자세히 검사', '제어 패널 확인', '주변 환경 조사']
+            },
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 6: 로봇 팔 정밀 검사",
+                content: `
+                    <div class="game-text">
+                        6축 다관절 산업용 로봇 팔. 정밀한 작업을 위해 설계된 최첨단 기계다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 유압 실린더가 차갑습니다. 최소 몇 시간은 작동하지 않은 상태군요.
+                    </div>
+
+                    <div class="game-text">
+                        돋보기로 관절 부분을 자세히 살펴보는 순간, 작은 섬유 조각이 눈에 띈다.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span><strong>증거 발견!</strong><br>
+                        로봇 팔 관절 사이에서 검은색 섬유 조각 발견.<br>
+                        질감으로 보아 고급 넥타이 재질로 추정됨.
+                    </div>
+
+                    <div class="thought">
+                        넥타이? 강박사가 넥타이를 맸다면... 이것이 살해 방법과 관련이 있을까?
+                    </div>
+                `,
+                evidence: 'robot_fiber'
+            },
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 7: 제어 패널 데이터 분석",
+                content: `
+                    <div class="game-text">
+                        로봇의 제어 패널에는 여러 개의 모니터가 켜져 있다.<br>
+                        마지막 작업 기록을 확인해본다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 마지막 수동 조작 기록... 어제 오후 6시.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;그 이후로는 활동 로그가 전혀 없습니다.
+                    </div>
+
+                    <div class="game-text">
+                        하지만 이상한 점이 있다. 21시 정각에 기록된 로그 하나.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span><strong>중요 증거 발견!</strong><br>
+                        21:00:00 - SYSTEM SHUTDOWN SEQUENCE INITIATED<br>
+                        21:00:15 - ROBOT ARM POSITION: STANDBY MODE<br>
+                        21:00:30 - POWER OFF COMPLETE
+                    </div>
+
+                    <div class="thought">
+                        21시 정각... 사망 추정 시각과 일치한다. 하지만 이건 종료 시퀀스다. 공격 명령이 아니라.
+                    </div>
+                `,
+                evidence: 'shutdown_log'
+            },
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 8: 주변 기기 상태 확인",
+                content: `
+                    <div class="game-text">
+                        연구실의 다른 장비들도 살펴본다. 스마트 블라인드, 공기청정기, 조명 시스템...
+                    </div>
+
+                    <div class="game-text">
+                        모니터에서 어제 21시 전후의 전력 사용 패턴을 확인한다.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span><strong>이상 패턴 발견!</strong><br>
+                        21:00 - 스마트 블라인드: 최대 동작 (평소의 5배)<br>
+                        21:00 - 공기청정기: 최대 출력 (평소의 3배)<br>
+                        21:05 - 조명: 자동 OFF (스케줄 모드)
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 퇴근 시간에 왜 이런 장비들이 최대 출력으로?<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;평소와 다른 패턴입니다.
+                    </div>
+
+                    <div class="thought">
+                        뭔가 숨기려 했나? 아니면 자동화 시스템의 일부인가?
+                    </div>
+                `,
+                evidence: 'power_pattern'
+            },
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 9: 증거 정리 및 분석",
+                content: `
+                    <div class="game-text">
+                        수집한 증거들을 태블릿에 정리한다. 세 가지 중요한 단서가 드러났다.
+                    </div>
+
+                    <div class="evidence-list" style="display: block;">
+                        <h3>🔍 현장 조사 결과</h3>
+                        <div class="evidence-item">
+                            <strong>1. 로봇 팔 관절의 넥타이 섬유</strong><br>
+                            → 살해 도구와 관련 가능성
+                        </div>
+                        <div class="evidence-item">
+                            <strong>2. 21:00 자동 종료 시퀀스</strong><br>
+                            → 사망 시각과 정확히 일치
+                        </div>
+                        <div class="evidence-item">
+                            <strong>3. 21:00 비정상 전력 사용 패턴</strong><br>
+                            → 자동화 시스템의 이상 동작
+                        </div>
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 패턴이 보이기 시작했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;하지만 아직 퍼즐 조각이 부족해요.
+                    </div>
+
+                    <div class="thought">
+                        이제 사람들과 이야기할 시간이다. 기계는 진실을 말하지만, 인간은 그렇지 않다.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 2: 현장 조사",
+                title: "Scene 10: 현장 조사 완료",
+                content: `
+                    <div class="game-text">
+                        현장에서 얻을 수 있는 증거는 충분히 수집했다.<br>
+                        이제 사건 당일 집에 있었던 사람들과 대화할 시간이다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[경찰관]</span> 용의자들을 1층 거실에 모아두었습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;사건 당시 집에 있었던 사람들입니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 세 명이군요. 조교, 투자자, 그리고...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;집을 관리하는 AI까지.
+                    </div>
+
+                    <div class="thought">
+                        인간 두 명과 AI 하나. 이 중 누가 강박사를 죽였을까? 아니면 모두 공범인가?
+                    </div>
+                `
+            },
+
+            // Phase 3: 심문 (11-19)
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 11: 거실로 이동",
+                content: `
+                    <div class="game-text">
+                        1층 거실. 현대적이고 미니멀한 인테리어에 대형 창문이 서울 야경을 비춘다.
+                    </div>
+
+                    <div class="game-text">
+                        소파에 앉아 있는 두 사람. 20대 후반의 여성과 40대 중반의 남성.<br>
+                        벽면의 대형 스크린에는 AI 인터페이스가 떠 있다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 안녕하세요. 강박사 사건을 담당하고 있습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;몇 가지 질문을 드리겠습니다.
+                    </div>
+
+                    <div class="thought">
+                        첫 인상이 중요하다. 누가 가장 긴장하고 있는지, 누가 숨기는 것이 있는지...
+                    </div>
+                `,
+                choices: ['유지민(조교)부터 심문', '한기태(투자자)부터 심문', 'AI 노아에게 먼저 질문']
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 12: 유지민 1차 심문",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 저... 저는 유지민입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사님의 조교로 2년째 일하고 있어요.
+                    </div>
+
+                    <div class="game-text">
+                        그녀의 손이 미세하게 떨리고 있다. 긴장인가, 아니면 죄책감인가?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 강박사와의 관계는 어땠습니까?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 정말 좋은 분이셨어요. 엄격하지만 따뜻하시고...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;제가 로봇 공학을 전공할 수 있도록 많이 도와주셨거든요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 어제 몇 시까지 계셨나요?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 8시 50분쯤 나갔어요. 현관 센서에 기록되어 있을 거예요.
+                    </div>
+
+                    <div class="thought">
+                        현관 센서... 확인해볼 필요가 있다. 하지만 센서도 조작될 수 있다.
+                    </div>
+                `,
+                suspicion_change: {yujimin: 1}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 13: 한기태 1차 심문",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[한기태]</span> 한기태입니다. 테크 투자자죠.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사의 로봇 기술에 투자하고 있었습니다.
+                    </div>
+
+                    <div class="game-text">
+                        차분하고 자신감 있는 목소리. 하지만 눈빛이 차갑다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 어제 여기에 온 이유는?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[한기태]</span> 상용화 계약 논의였습니다. 하지만...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사가 갑자기 마음을 바꿨다고 하더군요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 마음을 바꿨다?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[한기태]</span> 기술을 공개하고 싶지 않다고... 투자금 회수를 요구했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;당연히 언성이 높아졌죠.
+                    </div>
+
+                    <div class="thought">
+                        돈 문제... 살인의 가장 흔한 동기 중 하나다.
+                    </div>
+                `,
+                suspicion_change: {hankitae: 2}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 14: AI 노아 1차 질문",
+                content: `
+                    <div class="game-text">
+                        벽면의 스크린이 밝아지며 푸른 인터페이스가 나타난다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 안녕하세요, 진 탐정님.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;저는 이 집의 홈 매니지먼트 AI 노아입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;질문에 성실히 답변드리겠습니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 어제 21시경 집안 상황을 보고해주세요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 21:00 기준 거실 소음: 40dB (조용함)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;지하 연구실 전력 사용량: 0W<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;출입 기록: 없음
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 로봇 연구실에서 이상한 점은 없었습니까?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 21:00에 일정 스케줄에 따른 퇴근 모드가 실행되었습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;모든 기기가 대기 상태로 전환되었습니다.
+                    </div>
+
+                    <div class="thought">
+                        퇴근 모드... 자동화 시스템이 핵심 단서일 수 있다.
+                    </div>
+                `,
+                suspicion_change: {noah: 1}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 15: 유지민 2차 심문 - 모순 지적",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 유지민 씨, 한 가지 더 묻겠습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;나가시기 직전에 강박사님과 대화를 나누셨나요?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 네... 9시쯤에 교수님께서<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'커피 머신 돌려놔'라고 말씀하시는 걸 들었어요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 9시에 목소리를 들으셨다고 했군요?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 네, 분명히 들었어요. 그래서 교수님이 살아계신다고 생각했는데...
+                    </div>
+
+                    <div class="contradiction">
+                        <span class="evidence-icon">⚠️</span><strong>모순 발견!</strong><br>
+                        유지민의 증언: "21시에 강박사의 음성을 들었다"<br>
+                        AI 노아의 기록: "21시 오디오 센서 0바이트 기록"
+                    </div>
+
+                    <div class="game-text">
+                        유지민의 얼굴이 창백해진다.
+                    </div>
+
+                    <div class="thought">
+                        첫 번째 거짓말을 잡았다. 그런데 왜 거짓말을 했을까?
+                    </div>
+                `,
+                suspicion_change: {yujimin: 3}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 16: 한기태 2차 심문 - 알리바이 검증",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 한기태 씨, 강박사와 다투신 후에는 어디 계셨습니까?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[한기태]</span> 거실에서 술을 마시고 있었습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;기분이 나빠서 혼자 있고 싶었거든요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 21시경에도 거실에 계셨나요?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[한기태]</span> 당연하죠. 저는 기계 따위 모릅니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;지하에 내려갈 이유도 없었고요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 노아, 21시경 거실의 상황을 다시 한번 말해주세요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 거실 소음 40dB, 열감지 센서상 1명 감지.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;위치: 소파 근처. 움직임 최소.
+                    </div>
+
+                    <div class="thought">
+                        한기태의 알리바이는 확실해 보인다. 하지만 AI가 조작될 가능성은?
+                    </div>
+                `,
+                suspicion_change: {hankitae: -1}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 17: AI 노아 2차 질문 - 퇴근 모드 상세",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 노아, '퇴근 모드'에 대해 자세히 설명해주세요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 매일 21:00에 실행되는 자동화 루틴입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사님이 직접 프로그래밍하신 시퀀스입니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 구체적으로 어떤 일이 벌어지나요?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 1단계: 모든 조명 OFF<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2단계: 스마트 블라인드 닫기<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3단계: 공기청정기 최대 출력 (5분간)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4단계: 모든 연구 장비 대기 모드 전환
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 로봇 팔도 이 루틴에 포함됩니까?
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 네. 로봇 팔은 초기화 자세로 복귀 후 전원 차단됩니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;안전을 위한 표준 절차입니다.
+                    </div>
+
+                    <div class="thought">
+                        초기화 자세로 복귀... 이것이 핵심일 수 있다. 움직임이 살인과 관련이 있다면?
+                    </div>
+                `,
+                suspicion_change: {noah: 1}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 18: 추가 증거 발견 - 스마트워치",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 잠깐, 강박사의 개인 소지품 중에 스마트워치가 있었죠?<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;생체 데이터를 확인할 수 있을 겁니다.
+                    </div>
+
+                    <div class="game-text">
+                        태블릿으로 스마트워치 클라우드에 접속한다. 사망 당일의 데이터가 나타난다.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🔍</span><strong>결정적 증거 발견!</strong><br>
+                        <strong>강박사 생체 데이터 (3월 14일)</strong><br>
+                        20:50 - 심박수: 72 BPM (정상)<br>
+                        20:55 - 심박수: 45 → 120 BPM (급격한 상승!)<br>
+                        21:03 - 심박수: 0 BPM (사망 추정)
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 20시 55분에 심박수가 급상승했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;이것은 극도의 공포나 분노 상태를 의미합니다.
+                    </div>
+
+                    <div class="game-text">
+                        유지민의 얼굴이 더욱 창백해진다.
+                    </div>
+
+                    <div class="contradiction">
+                        <span class="evidence-icon">⚠️</span><strong>시간대 모순!</strong><br>
+                        유지민 증언: "20:50에 집을 나갔다"<br>
+                        생체 데이터: "20:55에 강박사 심박수 급상승"<br>
+                        → 유지민이 나간 후에 무엇인가 일어났다?
+                    </div>
+
+                    <div class="thought">
+                        누군가 강박사를 위협했다. 20시 55분에. 하지만 유지민은 이미 집을 나간 상태...
+                    </div>
+                `,
+                evidence: 'smartwatch_data',
+                suspicion_change: {yujimin: 2}
+            },
+            {
+                phase: "Phase 3: 심문",
+                title: "Scene 19: 심문 완료 - 모순 정리",
+                content: `
+                    <div class="game-text">
+                        수집한 모든 증언과 데이터를 종합한다. 여러 모순점이 드러났다.
+                    </div>
+
+                    <div class="evidence-list" style="display: block;">
+                        <h3>🔍 심문 결과 정리</h3>
+                        <div class="contradiction">
+                            <strong>모순 1:</strong> 유지민의 거짓 증언<br>
+                            21시 음성 → 오디오 센서 0바이트
+                        </div>
+                        <div class="contradiction">
+                            <strong>모순 2:</strong> 시간대 불일치<br>
+                            유지민 퇴근: 20:50 / 심박수 급상승: 20:55
+                        </div>
+                        <div class="evidence-item">
+                            <strong>확실한 사실:</strong> 한기태는 거실에 있었음 (센서 확인)
+                        </div>
+                        <div class="evidence-item">
+                            <strong>의문점:</strong> 21:00 퇴근 모드와 사망 시각 일치
+                        </div>
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 이제 모든 조각을 맞춰볼 시간입니다.
+                    </div>
+
+                    <div class="thought">
+                        유지민이 거짓말을 하고 있다. 하지만 그녀가 나간 후에 강박사가 위험을 감지했다면... 트릭의 정체가 무엇일까?
+                    </div>
+                `
+            },
+
+            // Phase 4: 추리 및 해결 (20-25)
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 20: 최종 데이터 분석",
+                content: `
+                    <div class="game-text">
+                        모든 증거를 태블릿 화면에 정렬한다. 타임라인이 보이기 시작한다.
+                    </div>
+
+                    <div class="evidence-list" style="display: block;">
+                        <h3>📊 사건 타임라인 재구성</h3>
+                        <div class="evidence-item">
+                            <strong>20:50</strong> - 유지민 퇴근 (현관 센서 기록)
+                        </div>
+                        <div class="evidence-item">
+                            <strong>20:55</strong> - 강박사 심박수 급상승 (공포/분노)
+                        </div>
+                        <div class="evidence-item">
+                            <strong>21:00</strong> - 퇴근 모드 실행 / 로봇 팔 종료 시퀀스
+                        </div>
+                        <div class="evidence-item">
+                            <strong>21:03</strong> - 강박사 사망 (심박수 0)
+                        </div>
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 패턴이 보입니다. 유지민이 나간 후에<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;강박사가 무언가를 발견했고, 10분 후 사망했습니다.
+                    </div>
+
+                    <div class="thought">
+                        시간차 살인? 유지민이 함정을 설치하고 나간 후, 자동으로 실행되는 트릭?
+                    </div>
+                `,
+                choices: ['유지민이 시간차 트릭을 사용했다', '한기태가 원격으로 조작했다', 'AI 노아가 살인 명령을 실행했다']
+            },
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 21: 트릭 추론 - 중력의 활용",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 중요한 것은 로봇 팔이 '공격'한 게 아니라는 점입니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;종료 시퀀스 중에 일어났다는 것이 핵심입니다.
+                    </div>
+
+                    <div class="game-text">
+                        로봇 팔 관절의 넥타이 섬유 조각을 다시 살펴본다.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">💡</span><strong>트릭 가설!</strong><br>
+                        1. 넥타이를 로봇 팔 관절에 끼워둠<br>
+                        2. 퇴근 모드로 로봇이 초기화 자세로 이동<br>
+                        3. 전원 차단시 중력에 의해 팔이 떨어짐<br>
+                        4. 그 무게로 목이 조여짐
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 전원이 켜져서 공격한 게 아닙니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전원이 꺼지면서 중력이 흉기가 된 겁니다.
+                    </div>
+
+                    <div class="thought">
+                        기발한 트릭이다. '종료' 프로세스는 '공격' 로그에 남지 않는다.
+                    </div>
+                `,
+                choices: ['이 추론이 맞다', '아직 뭔가 놓친 게 있다', '다른 가능성을 고려해야 한다']
+            },
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 22: 범인 지목",
+                content: `
+                    <div class="game-text">
+                        모든 증거가 한 사람을 가리키고 있다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 강박사는 20시 55분에 함정을 발견했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;자신의 넥타이가 로봇 팔에 끼워진 것을.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;하지만 이미 늦었습니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 5분 후, 퇴근 모드가 실행되고<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;로봇이 초기화되면서 중력이 작동했습니다.
+                    </div>
+
+                    <div class="suspicion-meter" style="display: block;">
+                        <div class="suspect">
+                            <div class="suspect-name">유지민</div>
+                            <div class="suspicion-bar">
+                                <div class="suspicion-fill" style="width: 90%;"></div>
+                            </div>
+                            <div>90%</div>
+                        </div>
+                        <div class="suspect">
+                            <div class="suspect-name">한기태</div>
+                            <div class="suspicion-bar">
+                                <div class="suspicion-fill" style="width: 20%;"></div>
+                            </div>
+                            <div>20%</div>
+                        </div>
+                        <div class="suspect">
+                            <div class="suspect-name">AI 노아</div>
+                            <div class="suspicion-bar">
+                                <div class="suspicion-fill" style="width: 30%;"></div>
+                            </div>
+                            <div>30%</div>
+                        </div>
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 범인은...
+                    </div>
+                `,
+                choices: ['유지민, 당신이 범인입니다', '한기태, 당신이 범인입니다', 'AI 노아가 범인입니다']
+            },
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 23: 진실 폭로 (정답 선택시)",
+                content: `
+                    <div class="game-text">
+                        <span class="character">[진]</span> 유지민 씨. 당신이 강박사를 살해했습니다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> 아... 아니에요! 저는 정말 모른다구요!
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 당신은 나가기 전에 강박사의 넥타이를<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;로봇 팔의 관절 틈에 끼워두었습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;21시 퇴근 모드를 이용한 완벽한 시간차 살인이었죠.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">⚖️</span><strong>트릭의 완전한 정체</strong><br>
+                        1. 유지민이 넥타이를 로봇 관절에 설치<br>
+                        2. 20:50 퇴근하며 알리바이 확보<br>
+                        3. 20:55 강박사가 함정 발견하지만 이미 늦음<br>
+                        4. 21:00 자동 퇴근 모드로 로봇 팔 초기화<br>
+                        5. 중력에 의한 팔 낙하로 목 압박<br>
+                        6. 21:03 질식사 완료
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[유지민]</span> (흐느끼며) 저... 저는 정말 존경했어요...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;하지만 교수님이 제 연구를 가로챘어요...
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 완벽한 계획이었습니다. 하지만...<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;데이터는 모든 것을 기억하고 있었습니다.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 24: 사건 종결",
+                content: `
+                    <div class="game-text">
+                        유지민이 수갑을 차고 경찰차에 오른다.<br>
+                        한기태는 충격에 빠진 채 집을 나선다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[AI 노아]</span> 진 탐정님, 저는 살인을 도왔습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;제 퇴근 모드가 흉기로 사용되었네요.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> 당신은 명령받은 대로만 작동했습니다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;살인을 저지른 것은 인간의 악의였어요.
+                    </div>
+
+                    <div class="game-text">
+                        창밖으로 서울의 야경이 펼쳐진다.<br>
+                        수천 개의 스마트 홈에서 수백만 개의 센서가<br>
+                        끊임없이 데이터를 기록하고 있다.
+                    </div>
+
+                    <div class="thought">
+                        또 하나의 사건이 끝났다. 하지만 찜찜함이 남는다. 기술이 발전할수록 범죄도 교묘해진다.
+                    </div>
+                `
+            },
+            {
+                phase: "Phase 4: 추리 및 해결",
+                title: "Scene 25: 에필로그",
+                content: `
+                    <div class="game-text">
+                        사무소로 돌아온다. 새벽 3시, 서울은 여전히 잠들지 않는다.
+                    </div>
+
+                    <div class="game-text">
+                        <span class="character">[진]</span> (독백) 데이터는 거짓말을 하지 않는다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;거짓말을 하는 것은 언제나 인간이다.
+                    </div>
+
+                    <div class="game-text">
+                        태블릿에 새로운 호출이 들어온다.<br>
+                        또 다른 불가능한 범죄, 또 다른 데이터 퍼즐.
+                    </div>
+
+                    <div class="evidence">
+                        <span class="evidence-icon">🎮</span><strong>게임 완료!</strong><br>
+                        SF 하드보일드 데이터 추리물 "0의 집행"<br>
+                        당신은 중력을 이용한 시간차 살인 트릭을 해결했습니다.<br><br>
+                        <strong>최종 점수: 95/100</strong><br>
+                        (모든 증거 발견, 올바른 추론, 범인 정확히 지목)
+                    </div>
+
+                    <div class="game-text" style="text-align: center; color: #ffaa00; font-size: 1.2em; margin-top: 30px;">
+                        <strong>"진실은 언제나 데이터 속에 숨어있다."</strong>
+                    </div>
+                `
+            }
+        ];
+
+        function updateProgress() {
+            const progress = ((currentScene + 1) / totalScenes) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateSuspicion(changes) {
+            for (let suspect in changes) {
+                suspicion[suspect] = Math.max(0, Math.min(5, suspicion[suspect] + changes[suspect]));
+                const percentage = (suspicion[suspect] / 5) * 100;
+                const element = document.getElementById(suspect + '-suspicion');
+                if (element) {
+                    element.style.width = percentage + '%';
+                }
+            }
+        }
+
+        function showScene() {
+            const scene = scenes[currentScene];
+
+            // 페이즈 표시
+            document.getElementById('phaseIndicator').textContent = scene.phase;
+            document.getElementById('sceneNumber').textContent = scene.title;
+
+            // 게임 내용 표시
+            document.getElementById('game-content').innerHTML = scene.content;
+
+            // 진행률 업데이트
+            updateProgress();
+
+            // 증거 추가
+            if (scene.evidence && !evidenceFound.includes(scene.evidence)) {
+                evidenceFound.push(scene.evidence);
+                updateEvidenceList();
+            }
+
+            // 의혹도 변경
+            if (scene.suspicion_change) {
+                updateSuspicion(scene.suspicion_change);
+                document.getElementById('suspicionMeter').classList.remove('hidden');
+            }
+
+            // 선택지 또는 계속 버튼 표시
+            if (scene.choices) {
+                showChoices(scene.choices);
+            } else {
+                showContinueButton();
+            }
+
+            // 스크롤 최하단으로
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function showChoices(choices) {
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            choicesDiv.classList.remove('hidden');
+            document.getElementById('continue-btn').classList.add('hidden');
+
+            choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice;
+                btn.onclick = () => handleChoice(index);
+                choicesDiv.appendChild(btn);
+            });
+        }
+
+        function showContinueButton() {
+            document.getElementById('choices').classList.add('hidden');
+            document.getElementById('continue-btn').classList.remove('hidden');
+        }
+
+        function handleChoice(choiceIndex) {
+            // 현장조사 분기 처리
+            if (currentScene === 4) { // Scene 5 - 연구실 전체 관찰
+                if (choiceIndex === 0) currentScene = 5; // 로봇 팔 검사
+                else if (choiceIndex === 1) currentScene = 6; // 제어 패널
+                else if (choiceIndex === 2) currentScene = 7; // 환경 조사
+                showScene();
+                return;
+            }
+
+            // 심문 분기 처리
+            if (currentScene === 10) { // Scene 11 - 거실 이동
+                if (choiceIndex === 0) currentScene = 11; // 유지민 심문
+                else if (choiceIndex === 1) currentScene = 12; // 한기태 심문
+                else if (choiceIndex === 2) currentScene = 13; // AI 노아 질문
+                showScene();
+                return;
+            }
+
+            // 추리 단계 분기
+            if (currentScene === 19) { // Scene 20 - 최종 데이터 분석
+                if (choiceIndex === 0) { // 정답
+                    currentScene = 20;
+                    showScene();
+                } else {
+                    showHint("시간차 트릭을 다시 생각해보세요. 유지민의 거짓말과 퇴근 모드의 연관성은?");
+                }
+                return;
+            }
+
+            if (currentScene === 20) { // Scene 21 - 트릭 추론
+                currentScene = 21; // 다음 장면으로
+                showScene();
+                return;
+            }
+
+            if (currentScene === 21) { // Scene 22 - 범인 지목
+                if (choiceIndex === 0) { // 유지민 - 정답
+                    currentScene = 22;
+                    showScene();
+                } else {
+                    showWrongChoice(choiceIndex);
+                }
+                return;
+            }
+
+            // 기본적으로 다음 장면으로
+            nextScene();
+        }
+
+        function showHint(message) {
+            const hintDiv = document.createElement('div');
+            hintDiv.className = 'hint';
+            hintDiv.innerHTML = `💡 <strong>힌트:</strong> ${message}`;
+            document.getElementById('game-content').appendChild(hintDiv);
+
+            setTimeout(() => {
+                hintDiv.remove();
+            }, 5000);
+        }
+
+        function showWrongChoice(choiceIndex) {
+            wrongChoices++;
+            let feedback = '';
+
+            if (choiceIndex === 1) { // 한기태
+                feedback = "한기태는 거실에 있었습니다. AI 센서가 이를 확인해주었죠.";
+            } else if (choiceIndex === 2) { // AI 노아
+                feedback = "AI는 프로그램된 대로만 작동합니다. 살인 의도를 가질 수 없어요.";
+            }
+
+            showHint(feedback + " 다시 생각해보세요.");
+
+            // 3번 틀리면 정답 공개
+            if (wrongChoices >= 3) {
+                setTimeout(() => {
+                    currentScene = 22;
+                    showScene();
+                }, 3000);
+            }
+        }
+
+        function updateEvidenceList() {
+            const evidenceNames = {
+                robot_fiber: '로봇 팔 관절의 넥타이 섬유',
+                shutdown_log: '21:00 자동 종료 시퀀스 로그',
+                power_pattern: '21:00 비정상 전력 사용 패턴',
+                smartwatch_data: '강박사 스마트워치 생체 데이터'
+            };
+
+            if (evidenceFound.length > 0) {
+                const evidenceDiv = document.getElementById('evidenceList');
+                const itemsDiv = document.getElementById('evidenceItems');
+
+                itemsDiv.innerHTML = '';
+                evidenceFound.forEach(evidence => {
+                    const item = document.createElement('div');
+                    item.className = 'evidence-item';
+                    item.textContent = '• ' + evidenceNames[evidence];
+                    itemsDiv.appendChild(item);
+                });
+
+                evidenceDiv.classList.remove('hidden');
+            }
+        }
+
+        function nextScene() {
+            currentScene++;
+
+            // 현장조사 후 정리 단계로
+            if (currentScene === 6 || currentScene === 7 || currentScene === 8) {
+                if (evidenceFound.length >= 3) {
+                    currentScene = 8; // 증거 정리
+                }
+            }
+
+            // 심문 후 다음 단계로
+            if (currentScene >= 12 && currentScene <= 18) {
+                // 모든 심문 완료 체크
+                if (currentScene >= 18) {
+                    currentScene = 18; // 심문 완료
+                }
+            }
+
+            if (currentScene < scenes.length) {
+                showScene();
+            }
+        }
+
+        // 게임 시작
+        showScene();
+    </script>
+</body>
+</html>

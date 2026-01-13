@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0의 집행 - 비주얼 노벨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', 'Noto Sans CJK KR', sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 메인 컨테이너 */
+        .vn-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        /* 풀스크린 배경 이미지 */
+        .vn-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .vn-bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        /* 상단 헤더 */
+        .vn-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0));
+            padding: 20px;
+            color: white;
+        }
+
+        .vn-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .vn-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin: 10px 0 5px 0;
+        }
+
+        .vn-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .vn-scene-info {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* 하단 대화 UI */
+        .vn-dialogue-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        /* 캐릭터 이름 박스 */
+        .vn-character-name {
+            background: rgba(66, 165, 245, 0.9);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px 20px 0 0;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: -1px;
+            font-size: 0.95em;
+        }
+
+        /* 대화 박스 */
+        .vn-dialogue-box {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 100px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .vn-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* 선택지 */
+        .vn-choices {
+            margin-top: 15px;
+        }
+
+        .vn-choice {
+            background: rgba(66, 165, 245, 0.9);
+            color: white;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            font-size: 1em;
+        }
+
+        .vn-choice:hover {
+            background: rgba(66, 165, 245, 1);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.02);
+        }
+
+        /* 계속하기 버튼 */
+        .vn-continue {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(66, 165, 245, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .vn-continue:hover {
+            background: rgba(66, 165, 245, 1);
+            transform: scale(1.1);
+        }
+
+        .continue-indicator {
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-left: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 사이드 정보 */
+        .vn-side-info {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            z-index: 5;
+            width: 250px;
+        }
+
+        .vn-evidence {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .evidence-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4caf50;
+        }
+
+        .vn-suspicion {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 152, 0, 0.5);
+        }
+
+        .suspicion-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff9800;
+        }
+
+        .suspect-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .suspect-label {
+            width: 60px;
+            font-size: 0.9em;
+        }
+
+        .suspicion-fill {
+            flex: 1;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            margin-left: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .suspicion-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #ff9800, #f44336);
+            border-radius: 4px;
+            width: var(--suspicion-width, 0%);
+            transition: width 0.5s ease;
+        }
+
+        /* 텍스트 스타일 */
+        .character {
+            color: #2196f3;
+            font-weight: bold;
+        }
+
+        .thought {
+            color: #ff9800;
+            font-style: italic;
+            background: rgba(255, 152, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 3px solid #ff9800;
+        }
+
+        .choice-feedback {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .vn-side-info {
+                width: 200px;
+                top: 80px;
+                right: 10px;
+            }
+
+            .vn-dialogue-container {
+                padding: 15px;
+            }
+
+            .vn-header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vn-container">
+        <!-- 배경 이미지 (풀스크린) -->
+        <div class="vn-background">
+            <img id="sceneImage" class="vn-bg-image" src="" alt="Scene Background">
+        </div>
+
+        <!-- 상단 정보 -->
+        <div class="vn-header">
+            <div class="vn-title">0의 집행</div>
+            <div class="vn-progress">
+                <div class="vn-progress-bar" id="progressBar"></div>
+            </div>
+            <div class="vn-scene-info">
+                <span id="phaseIndicator"></span> - <span id="sceneNumber"></span>
+            </div>
+        </div>
+
+        <!-- 하단 대화 UI -->
+        <div class="vn-dialogue-container">
+            <!-- 캐릭터 이름 박스 -->
+            <div class="vn-character-name" id="characterName">내레이션</div>
+
+            <!-- 대화 내용 박스 -->
+            <div class="vn-dialogue-box">
+                <div class="vn-text" id="dialogueText">
+                    <!-- 대화 내용이 여기에 표시됩니다 -->
+                </div>
+            </div>
+
+            <!-- 선택지 -->
+            <div class="vn-choices" id="vnChoices"></div>
+
+            <!-- 계속하기 버튼 -->
+            <div class="vn-continue" id="vnContinue" onclick="nextDialogue()">
+                <div class="continue-indicator">▶</div>
+            </div>
+        </div>
+
+        <!-- 사이드 정보 (증거, 의혹도 등) -->
+        <div class="vn-side-info">
+            <div id="evidenceList" class="vn-evidence hidden">
+                <div class="evidence-title">🔍 증거</div>
+                <div id="evidenceItems"></div>
+            </div>
+
+            <div id="suspicionMeter" class="vn-suspicion hidden">
+                <div class="suspicion-title">⚠️ 의혹도</div>
+                <div class="suspicion-bars">
+                    <div class="suspect-bar">
+                        <div class="suspect-label">유지민</div>
+                        <div class="suspicion-fill" id="yujimin-suspicion"></div>
+                    </div>
+                    <div class="suspect-bar">
+                        <div class="suspect-label">한기태</div>
+                        <div class="suspicion-fill" id="hankitae-suspicion"></div>
+                    </div>
+                    <div class="suspect-bar">
+                        <div class="suspect-label">AI노아</div>
+                        <div class="suspicion-fill" id="noah-suspicion"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDialogue = 0;
+        let evidenceFound = [];
+        let suspicion = {yujimin: 0, hankitae: 0, noah: 0};
+        let wrongChoices = 0;
+        let selectedBranch = null;
+
+        // 대사별 데이터 (이미지 하나당 대사 하나)
+        const dialogues = [
+            // Scene 1: 긴급 호출
+            {
+                image: 'game/images/scenes/scene_01.png',
+                phase: "Phase 1: 사건 발생",
+                title: "긴급 호출",
+                speaker: "내레이션",
+                content: `<strong>2024년 3월 15일, 오후 11시 30분</strong><br>서울 강남구 데이터 포렌식 사무소`
+            },
+            {
+                image: 'game/images/scenes/scene_01.png',
+                phase: "Phase 1: 사건 발생",
+                title: "긴급 호출",
+                speaker: "내레이션",
+                content: `전화벨이 울린다. 밤늦은 시간의 호출은 보통 중요한 사건을 의미한다.`
+            },
+            {
+                image: 'game/images/scenes/scene_01.png',
+                phase: "Phase 1: 사건 발생",
+                title: "긴급 호출",
+                speaker: "경찰서",
+                content: `진 탐정님, 긴급사건입니다. 강남구 아르카디아 맨션에서 의문사가 발생했습니다. 현장으로 출동 가능하십니까?`
+            },
+            {
+                image: 'game/images/scenes/scene_01.png',
+                phase: "Phase 1: 사건 발생",
+                title: "긴급 호출",
+                speaker: "진 (생각)",
+                content: `또 다른 데이터 퍼즐이 시작된다. 인간은 거짓말을 하지만, 데이터는 그렇지 않다.`
+            },
+
+            // Scene 2: 현장 도착
+            {
+                image: 'game/images/scenes/scene_02.png',
+                phase: "Phase 1: 사건 발생",
+                title: "현장 도착",
+                speaker: "내레이션",
+                content: `<strong>오후 11시 50분</strong><br>아르카디아 맨션 앞`
+            },
+            {
+                image: 'game/images/scenes/scene_02.png',
+                phase: "Phase 1: 사건 발생",
+                title: "현장 도착",
+                speaker: "내레이션",
+                content: `첨단 기술로 무장한 스마트 맨션. 모든 것이 자동화되어 있다.`
+            },
+            {
+                image: 'game/images/scenes/scene_02.png',
+                phase: "Phase 1: 사건 발생",
+                title: "현장 도착",
+                speaker: "경찰관",
+                content: `진 탐정님, 기다리고 있었습니다. 피해자는 강박사(58세), 컴퓨터 공학 교수입니다.`
+            },
+
+            // Scene 3: 사건 브리핑
+            {
+                image: 'game/images/scenes/scene_03.png',
+                phase: "Phase 1: 사건 발생",
+                title: "사건 브리핑",
+                speaker: "내레이션",
+                content: `현장은 지하 연구실입니다. 강박사가 로봇 팔에 목이 눌려 사망한 상태로 발견되었습니다.`
+            },
+            {
+                image: 'game/images/scenes/scene_03.png',
+                phase: "Phase 1: 사건 발생",
+                title: "사건 브리핑",
+                speaker: "경찰관",
+                content: `현장에는 두 명의 관련자가 있습니다. 조수 유지민과 투자자 한기태입니다.`
+            },
+            {
+                image: 'game/images/scenes/scene_03.png',
+                phase: "Phase 1: 사건 발생",
+                title: "사건 브리핑",
+                speaker: "진 (생각)",
+                content: `스마트 맨션, 로봇 팔, 그리고 두 명의 용의자. 데이터가 진실을 말해줄 것이다.`
+            },
+
+            // Scene 4: 연구실 입장
+            {
+                image: 'game/images/scenes/scene_04.png',
+                phase: "Phase 1: 사건 발생",
+                title: "연구실 입장",
+                speaker: "내레이션",
+                content: `<strong>자정</strong><br>지하 연구실 입구`
+            },
+            {
+                image: 'game/images/scenes/scene_04.png',
+                phase: "Phase 1: 사건 발생",
+                title: "연구실 입장",
+                speaker: "내레이션",
+                content: `엘리베이터 문이 열리며 차가운 공기가 흘러나온다. 첨단 연구시설의 냄새가 난다.`
+            },
+
+            // Scene 5: 연구실 전체 관찰
+            {
+                image: 'game/images/scenes/scene_05.png',
+                phase: "Phase 2: 현장 조사",
+                title: "연구실 전체 관찰",
+                speaker: "내레이션",
+                content: `완벽하게 정리된 연구실. 중앙에 거대한 산업용 로봇 팔이 위치해 있다.`
+            },
+            {
+                image: 'game/images/scenes/scene_05.png',
+                phase: "Phase 2: 현장 조사",
+                title: "연구실 전체 관찰",
+                speaker: "내레이션",
+                content: `강박사의 시신은 이미 옮겨졌지만, 바닥에 분필로 표시된 윤곽이 남아있다.`
+            },
+            {
+                image: 'game/images/scenes/scene_05.png',
+                phase: "Phase 2: 현장 조사",
+                title: "연구실 전체 관찰",
+                speaker: "진 (생각)",
+                content: `너무 깨끗하다. 사고였다면 혼란의 흔적이 있어야 하는데...`
+            },
+            {
+                image: 'game/images/scenes/scene_05.png',
+                phase: "Phase 2: 현장 조사",
+                title: "수사 방향 선택",
+                speaker: "진",
+                content: `어디부터 조사를 시작할까?`,
+                choices: [
+                    "로봇 팔을 정밀 검사한다",
+                    "제어 패널을 확인한다",
+                    "주변 기기를 살펴본다"
+                ],
+                choice_outcomes: [
+                    { branch: "physical_evidence", description: "물리적 증거 중심의 수사" },
+                    { branch: "digital_evidence", description: "디지털 포렌식 중심의 수사" },
+                    { branch: "environmental_evidence", description: "환경 분석 중심의 수사" }
+                ]
+            },
+
+            // 로봇 팔 정밀 검사 경로
+            {
+                image: 'game/images/scenes/scene_06.png',
+                phase: "Phase 2: 현장 조사",
+                title: "로봇 팔 정밀 검사",
+                speaker: "내레이션",
+                content: `로봇 팔을 자세히 살펴본다. 관절 부분에 뭔가 걸려있다.`
+            },
+            {
+                image: 'game/images/scenes/scene_06.png',
+                phase: "Phase 2: 현장 조사",
+                title: "로봇 팔 정밀 검사",
+                speaker: "내레이션",
+                content: `검은색 천 조각이 기계 관절 사이에 끼어있다. 넥타이의 일부인 것 같다.`,
+                evidence: 'robot_fiber'
+            },
+
+            // 최종 범인 지목
+            {
+                image: 'game/images/scenes/scene_22.png',
+                phase: "Phase 4: 추리 및 해결",
+                title: "범인 지목",
+                speaker: "진",
+                content: `모든 증거를 종합한 결과, 범인은...`,
+                choices: [
+                    "유지민 (조수) - 내부 범행",
+                    "한기태 (투자자) - 경제적 동기",
+                    "사고사 - 시스템 오류"
+                ],
+                choice_outcomes: [
+                    { branch: "ending_yujimin", description: "유지민 범인 루트" },
+                    { branch: "ending_hankitae", description: "한기태 범인 루트" },
+                    { branch: "ending_accident", description: "사고사 결론 루트" }
+                ]
+            },
+
+            // 엔딩 A: 유지민 범인
+            {
+                image: 'game/images/scenes/scene_23.png',
+                phase: "엔딩 A: 내부자 범행",
+                title: "유지민 체포",
+                speaker: "진",
+                content: `유지민 씨, 당신이 강박사를 살해했습니다.`,
+                branch: "ending_yujimin"
+            },
+            {
+                image: 'game/images/scenes/scene_24.png',
+                phase: "엔딩 A: 내부자 범행",
+                title: "정의 구현",
+                speaker: "내레이션",
+                content: `데이터가 밝힌 진실. 기술은 완벽한 증인이었다.`,
+                branch: "ending_yujimin"
+            },
+
+            // 엔딩 B: 한기태 범인
+            {
+                image: 'game/images/scenes/scene_23.png',
+                phase: "엔딩 B: 투자자 음모",
+                title: "한기태 추궁",
+                speaker: "진",
+                content: `한기태 씨, 투자금 회수를 위한 범행이군요.`,
+                branch: "ending_hankitae"
+            },
+            {
+                image: 'game/images/scenes/scene_24.png',
+                phase: "엔딩 B: 투자자 음모",
+                title: "탐욕의 대가",
+                speaker: "내레이션",
+                content: `돈이 부른 비극. 투자자의 탐욕이 생명을 앗아갔다.`,
+                branch: "ending_hankitae"
+            },
+
+            // 엔딩 C: 사고사
+            {
+                image: 'game/images/scenes/scene_23.png',
+                phase: "엔딩 C: 시스템의 함정",
+                title: "기술적 결론",
+                speaker: "진",
+                content: `이것은 범죄가 아닙니다. 시스템 오류로 인한 사고입니다.`,
+                branch: "ending_accident"
+            },
+            {
+                image: 'game/images/scenes/scene_24.png',
+                phase: "엔딩 C: 시스템의 함정",
+                title: "기술에 대한 성찰",
+                speaker: "내레이션",
+                content: `인간이 만든 기술, 하지만 그 기술이 인간을 통제할 때의 위험성을 보여준 사건이었다.`,
+                branch: "ending_accident"
+            },
+
+            // 공통 에필로그
+            {
+                image: 'game/images/scenes/scene_25.png',
+                phase: "에필로그",
+                title: "사건 완료",
+                speaker: "내레이션",
+                content: `또 하나의 사건이 종료되었다. 각자의 진실이 있었다.`
+            },
+            {
+                image: 'game/images/scenes/scene_25.png',
+                phase: "에필로그",
+                title: "사건 완료",
+                speaker: "진 (생각)",
+                content: `데이터는 사실을 말하지만, 진실은 해석하는 사람에 따라 달라진다...`
+            }
+        ];
+
+        function showDialogue() {
+            // 분기 필터링
+            while (currentDialogue < dialogues.length) {
+                const dialogue = dialogues[currentDialogue];
+
+                if (dialogue.branch && selectedBranch && dialogue.branch !== selectedBranch) {
+                    currentDialogue++;
+                    continue;
+                }
+
+                if (dialogue.branch && !selectedBranch) {
+                    currentDialogue++;
+                    continue;
+                }
+
+                break;
+            }
+
+            if (currentDialogue >= dialogues.length) {
+                // 게임 완료
+                document.getElementById('vnContinue').innerHTML = '<div class="continue-indicator">🔄</div>';
+                document.getElementById('vnContinue').onclick = () => restartGame();
+                return;
+            }
+
+            const dialogue = dialogues[currentDialogue];
+
+            // 배경 이미지 표시
+            showDialogueImage(dialogue.image);
+
+            // 페이즈와 장면 정보 표시
+            document.getElementById('phaseIndicator').textContent = dialogue.phase;
+            document.getElementById('sceneNumber').textContent = dialogue.title;
+
+            // 캐릭터 이름과 대화 내용 표시
+            document.getElementById('characterName').textContent = dialogue.speaker || "내레이션";
+            document.getElementById('dialogueText').innerHTML = dialogue.content;
+
+            // 진행률 업데이트
+            updateProgress();
+
+            // 증거 추가
+            if (dialogue.evidence && !evidenceFound.includes(dialogue.evidence)) {
+                evidenceFound.push(dialogue.evidence);
+                updateEvidenceList();
+            }
+
+            // 선택지 처리
+            if (dialogue.choices) {
+                showVNChoices(dialogue.choices);
+            } else {
+                showVNContinue();
+            }
+
+            // 스크롤 방지를 위한 하단 고정
+            document.getElementById('vnContinue').style.display = dialogue.choices ? 'none' : 'flex';
+        }
+
+        function showDialogueImage(imagePath) {
+            const imageElement = document.getElementById('sceneImage');
+            if (imagePath) {
+                imageElement.style.display = 'block';
+                imageElement.src = imagePath;
+                imageElement.onload = function() {
+                    console.log(`✅ Dialogue image loaded: ${imagePath}`);
+                };
+                imageElement.onerror = function() {
+                    console.log(`⚠️ Dialogue image not found: ${imagePath}`);
+                    imageElement.style.display = 'none';
+                };
+            } else {
+                imageElement.style.display = 'none';
+            }
+        }
+
+        function showVNChoices(choices) {
+            const choicesDiv = document.getElementById('vnChoices');
+            choicesDiv.innerHTML = '';
+            choicesDiv.style.display = 'block';
+
+            choices.forEach((choice, index) => {
+                const choiceDiv = document.createElement('div');
+                choiceDiv.className = 'vn-choice';
+                choiceDiv.textContent = choice;
+                choiceDiv.onclick = () => handleChoice(index);
+                choicesDiv.appendChild(choiceDiv);
+            });
+        }
+
+        function showVNContinue() {
+            document.getElementById('vnChoices').style.display = 'none';
+            document.getElementById('vnContinue').style.display = 'flex';
+        }
+
+        function handleChoice(choiceIndex) {
+            const currentDialogueData = dialogues[currentDialogue];
+
+            if (currentDialogueData.choice_outcomes) {
+                const outcome = currentDialogueData.choice_outcomes[choiceIndex];
+
+                // 선택한 분기 저장
+                if (outcome.branch) {
+                    selectedBranch = outcome.branch;
+                }
+
+                // 선택 피드백 표시
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'choice-feedback';
+                feedbackDiv.innerHTML = `🎯 선택: ${outcome.description}`;
+
+                // 피드백을 대화 박스에 표시
+                const dialogueBox = document.querySelector('.vn-dialogue-box');
+                dialogueBox.appendChild(feedbackDiv);
+
+                // 1.5초 후 다음 대사로 진행
+                setTimeout(() => {
+                    nextDialogue();
+                }, 1500);
+            } else {
+                nextDialogue();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentDialogue + 1) / dialogues.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateEvidenceList() {
+            const evidenceNames = {
+                robot_fiber: '로봇 팔 관절의 넥타이 섬유',
+                shutdown_log: '21:00 자동 종료 시퀀스 로그',
+                power_pattern: '21:00 비정상 전력 사용 패턴',
+                smartwatch_data: '강박사 스마트워치 생체 데이터'
+            };
+
+            if (evidenceFound.length > 0) {
+                const evidenceDiv = document.getElementById('evidenceList');
+                const itemsDiv = document.getElementById('evidenceItems');
+
+                itemsDiv.innerHTML = '';
+                evidenceFound.forEach(evidence => {
+                    const item = document.createElement('div');
+                    item.textContent = '• ' + evidenceNames[evidence];
+                    itemsDiv.appendChild(item);
+                });
+
+                evidenceDiv.classList.remove('hidden');
+            }
+        }
+
+        function nextDialogue() {
+            currentDialogue++;
+            showDialogue();
+        }
+
+        function restartGame() {
+            currentDialogue = 0;
+            evidenceFound = [];
+            suspicion = { yujimin: 0, hankitae: 0, noah: 0 };
+            wrongChoices = 0;
+            selectedBranch = null;
+
+            // UI 초기화
+            document.getElementById('evidenceList').classList.add('hidden');
+            document.getElementById('suspicionMeter').classList.add('hidden');
+
+            // 계속하기 버튼 복원
+            document.getElementById('vnContinue').innerHTML = '<div class="continue-indicator">▶</div>';
+            document.getElementById('vnContinue').onclick = () => nextDialogue();
+
+            showDialogue();
+        }
+
+        // 게임 시작
+        showDialogue();
+    </script>
+</body>
+</html>

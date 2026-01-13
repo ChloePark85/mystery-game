@@ -1,0 +1,128 @@
+0의 집행 (Execution of Zero) - 장면별 이미지 생성 프롬프트
+================================================================================
+
+Scene 01: 긴급 호출
+파일명: 01_emergency_call.png
+프롬프트: Dark detective office at night in Seoul, computer screens glowing, phone ringing, noir atmosphere, cyberpunk aesthetic, digital forensics equipment, moody lighting, professional investigator workspace, digital art style
+--------------------------------------------------------------------------------
+
+Scene 02: 현장 도착
+파일명: 02_mansion_exterior.png
+프롬프트: Ultra-modern smart home mansion exterior at night, glass and steel architecture, Seoul cityscape, police cars with flashing lights, high-tech building with LED accents, cyberpunk noir atmosphere, futuristic residential building, digital art style
+--------------------------------------------------------------------------------
+
+Scene 03: 사건 브리핑
+파일명: 03_police_briefing.png
+프롬프트: Police briefing scene outside smart mansion, Korean police officers in uniform, detective in dark suit, crime scene tape, professional consultation, urban night setting, serious atmosphere, digital art style
+--------------------------------------------------------------------------------
+
+Scene 04: 연구실 입장
+파일명: 04_lab_entrance.png
+프롬프트: Underground laboratory entrance, sterile white walls, elevator doors opening, cold blue lighting, high-tech research facility, clean minimalist design, scientific atmosphere, cyberpunk aesthetic, digital art style
+--------------------------------------------------------------------------------
+
+Scene 05: 연구실 전체 관찰
+파일명: 05_lab_overview.png
+프롬프트: Sterile research laboratory interior, organized equipment, large industrial robotic arm in center, white walls, metallic surfaces, scientific instruments, clean and pristine crime scene, cold lighting, digital art style
+--------------------------------------------------------------------------------
+
+Scene 06: 로봇 팔 정밀 검사
+파일명: 06_robot_arm_inspection.png
+프롬프트: Close-up of industrial robotic arm joint, magnifying glass examining mechanical parts, small black fabric fibers caught in metal joints, forensic examination, detailed mechanical components, evidence discovery, digital art style
+--------------------------------------------------------------------------------
+
+Scene 07: 제어 패널 데이터 분석
+파일명: 07_control_panel.png
+프롬프트: High-tech control panel with multiple screens, 'SHUTDOWN SEQUENCE' displayed on monitor, timestamp '21:00', blue glowing interface, data logs and system information, cyberpunk UI design, digital art style
+--------------------------------------------------------------------------------
+
+Scene 08: 주변 기기 상태 확인
+파일명: 08_environment_check.png
+프롬프트: Smart home automation devices, motorized blinds, air purifier, power consumption graphs on screens, IoT sensors, automated systems, high-tech environmental controls, data visualization, digital art style
+--------------------------------------------------------------------------------
+
+Scene 09: 증거 정리 및 분석
+파일명: 09_evidence_analysis.png
+프롬프트: Detective examining tablet with evidence photos and data, multiple screens showing forensic analysis, organized evidence layout, professional investigation setup, data correlation, digital forensics, digital art style
+--------------------------------------------------------------------------------
+
+Scene 10: 현장 조사 완료
+파일명: 10_investigation_complete.png
+프롬프트: Detective closing tablet and preparing to leave laboratory, final evidence collection, transition from crime scene to interrogation phase, professional demeanor, completed investigation, digital art style
+--------------------------------------------------------------------------------
+
+Scene 11: 거실로 이동
+파일명: 11_living_room.png
+프롬프트: Modern luxury smart home living room, floor-to-ceiling windows with Seoul night view, minimalist furniture, two suspects sitting on sofa, large wall screen, contemporary interior design, digital art style
+--------------------------------------------------------------------------------
+
+Scene 12: 유지민 1차 심문
+파일명: 12_yujimin_interview1.png
+프롬프트: Young Korean woman in her late 20s, long black hair, white lab coat, nervous anxious expression, sitting across from interviewer, consistent character design, realistic proportions, digital art style
+--------------------------------------------------------------------------------
+
+Scene 13: 한기태 1차 심문
+파일명: 13_hankitae_interview1.png
+프롬프트: Middle-aged Korean businessman in his 40s, confident but cold expression, dark business suit, sitting in modern living room, professional appearance, consistent character design, digital art style
+--------------------------------------------------------------------------------
+
+Scene 14: AI 노아 1차 질문
+파일명: 14_ai_noah_interface.png
+프롬프트: Holographic AI interface on wall screen, blue digital avatar projection, 'NOAH SYSTEM' text, futuristic hologram display, smart home control center, glowing data streams, cyberpunk aesthetic, digital art style
+--------------------------------------------------------------------------------
+
+Scene 15: 유지민 2차 심문
+파일명: 15_yujimin_interview2.png
+프롬프트: Same young Korean woman from earlier, now more distressed and pale, sweating nervously, hands trembling, guilt and fear in eyes, consistent character design, psychological pressure, digital art style
+--------------------------------------------------------------------------------
+
+Scene 16: 한기태 2차 심문
+파일명: 16_hankitae_interview2.png
+프롬프트: Same middle-aged businessman, maintaining composure but slightly defensive posture, consistent character from earlier scene, same business suit and facial features, digital art style
+--------------------------------------------------------------------------------
+
+Scene 17: AI 노아 2차 질문
+파일명: 17_ai_noah_details.png
+프롬프트: Detailed AI interface showing system diagrams, automated home routines, shutdown sequences, technical data visualization, smart home automation flowcharts, cyberpunk interface design, digital art style
+--------------------------------------------------------------------------------
+
+Scene 18: 스마트워치 데이터 발견
+파일명: 18_smartwatch_data.png
+프롬프트: Close-up of smartwatch display showing heart rate spike graph, timeline from 20:55, dramatic data visualization, numbers '45 BPM → 120 BPM', medical monitoring interface, crucial evidence, digital art style
+--------------------------------------------------------------------------------
+
+Scene 19: 심문 완료
+파일명: 19_interrogation_complete.png
+프롬프트: Detective reviewing all testimonies and evidence on tablet, multiple contradiction charts, data correlation analysis, three suspects in background, investigation synthesis, digital art style
+--------------------------------------------------------------------------------
+
+Scene 20: 최종 데이터 분석
+파일명: 20_data_analysis.png
+프롬프트: Comprehensive data analysis on multiple screens, timeline reconstruction, evidence correlation charts, forensic data visualization, systematic investigation results, professional analysis, digital art style
+--------------------------------------------------------------------------------
+
+Scene 21: 트릭 추론
+파일명: 21_trick_hypothesis.png
+프롬프트: Technical diagram showing robotic arm gravity mechanism, physics illustration of shutdown sequence, necktie caught in mechanical joints, scientific explanation of murder method, forensic reconstruction, digital art style
+--------------------------------------------------------------------------------
+
+Scene 22: 범인 지목
+파일명: 22_suspect_identification.png
+프롬프트: Detective pointing accusingly at female suspect, dramatic confrontation scene, suspicion meters showing evidence against each suspect, climactic moment of truth, digital art style
+--------------------------------------------------------------------------------
+
+Scene 23: 진실 폭로
+파일명: 23_truth_revelation.png
+프롬프트: Same young Korean woman from earlier interviews, now with shocked guilty expression, tears in eyes, hands covering face in defeat, emotional breakdown, consistent character design, digital art style
+--------------------------------------------------------------------------------
+
+Scene 24: 사건 종결
+파일명: 24_case_closed.png
+프롬프트: Police car outside smart mansion, suspect in handcuffs being led away, crime scene resolution, justice served, urban night setting with flashing police lights, digital art style
+--------------------------------------------------------------------------------
+
+Scene 25: 에필로그
+파일명: 25_epilogue.png
+프롬프트: Detective silhouette against large window overlooking Seoul night cityscape, contemplative pose, noir atmosphere, city lights reflecting, philosophical mood, cyberpunk city background, digital art style
+--------------------------------------------------------------------------------
+

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0의 집행 - Choose Your Own Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', 'Noto Sans CJK KR', sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 메인 컨테이너 */
+        .vn-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        /* 풀스크린 배경 이미지 */
+        .vn-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .vn-bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        /* 상단 헤더 */
+        .vn-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0));
+            padding: 20px;
+            color: white;
+        }
+
+        .vn-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .vn-progress {
+            width: 400px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin: 10px 0 5px 0;
+        }
+
+        .vn-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .vn-scene-info {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .vn-path-indicator {
+            margin-top: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            display: inline-block;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .path-detective {
+            background: rgba(66, 165, 245, 0.8);
+        }
+
+        .path-conspiracy {
+            background: rgba(255, 87, 34, 0.8);
+        }
+
+        .path-drama {
+            background: rgba(156, 39, 176, 0.8);
+        }
+
+        /* 하단 대화 UI */
+        .vn-dialogue-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        /* 캐릭터 이름 박스 */
+        .vn-character-name {
+            background: rgba(66, 165, 245, 0.9);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px 20px 0 0;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: -1px;
+            font-size: 0.95em;
+        }
+
+        /* 대화 박스 */
+        .vn-dialogue-box {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 100px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .vn-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* 선택지 */
+        .vn-choices {
+            margin-top: 15px;
+        }
+
+        .vn-choice {
+            background: rgba(66, 165, 245, 0.9);
+            color: white;
+            padding: 15px 25px;
+            margin: 10px 0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .vn-choice:hover {
+            background: rgba(66, 165, 245, 1);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.02);
+        }
+
+        .choice-detective {
+            background: rgba(33, 150, 243, 0.9);
+        }
+
+        .choice-conspiracy {
+            background: rgba(255, 87, 34, 0.9);
+        }
+
+        .choice-drama {
+            background: rgba(156, 39, 176, 0.9);
+        }
+
+        /* 계속하기 버튼 */
+        .vn-continue {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(66, 165, 245, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .vn-continue:hover {
+            background: rgba(66, 165, 245, 1);
+            transform: scale(1.1);
+        }
+
+        .continue-indicator {
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-left: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 선택 피드백 */
+        .choice-feedback {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 엔딩 타이틀 */
+        .ending-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            animation: fadeIn 1s ease;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .vn-dialogue-container {
+                padding: 15px;
+            }
+
+            .vn-header {
+                padding: 15px;
+            }
+
+            .vn-progress {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vn-container">
+        <!-- 배경 이미지 (풀스크린) -->
+        <div class="vn-background">
+            <img id="sceneImage" class="vn-bg-image" src="" alt="Scene Background">
+        </div>
+
+        <!-- 상단 정보 -->
+        <div class="vn-header">
+            <div class="vn-title">0의 집행 - Choose Your Own Adventure</div>
+            <div class="vn-progress">
+                <div class="vn-progress-bar" id="progressBar"></div>
+            </div>
+            <div class="vn-scene-info">
+                <span id="phaseIndicator"></span> - <span id="sceneNumber"></span>
+                <div class="vn-path-indicator" id="pathIndicator" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 하단 대화 UI -->
+        <div class="vn-dialogue-container">
+            <!-- 캐릭터 이름 박스 -->
+            <div class="vn-character-name" id="characterName">내레이션</div>
+
+            <!-- 대화 내용 박스 -->
+            <div class="vn-dialogue-box">
+                <div class="vn-text" id="dialogueText">
+                    <!-- 대화 내용이 여기에 표시됩니다 -->
+                </div>
+            </div>
+
+            <!-- 선택지 -->
+            <div class="vn-choices" id="vnChoices"></div>
+
+            <!-- 계속하기 버튼 -->
+            <div class="vn-continue" id="vnContinue" onclick="nextDialogue()">
+                <div class="continue-indicator">▶</div>
+            </div>
+        </div>
+
+        <!-- 엔딩 타이틀 표시 -->
+        <div id="endingTitle" class="ending-title hidden"></div>
+    </div>
+
+    <script>
+        let currentDialogue = 0;
+        let selectedPath = null; // detective, conspiracy, drama
+        let pathPhase = 1; // 각 경로별 진행 단계
+
+        // 모든 대사 데이터
+        const dialogues = {
+            // 공통 도입부 (4개)
+            common: [
+                {
+                    image: 'game/images/scenes/scene_01.png',
+                    phase: "Phase 1: 사건 발생",
+                    title: "긴급 호출",
+                    speaker: "내레이션",
+                    content: "<strong>2024년 3월 15일, 오후 11시 30분</strong><br>서울 강남구 데이터 포렌식 사무소"
+                },
+                {
+                    image: 'game/images/scenes/scene_01.png',
+                    phase: "Phase 1: 사건 발생",
+                    title: "긴급 호출",
+                    speaker: "경찰서",
+                    content: "진 탐정님, 긴급사건입니다. 강남구 아르카디아 맨션에서 의문사가 발생했습니다."
+                },
+                {
+                    image: 'game/images/scenes/scene_02.png',
+                    phase: "Phase 1: 사건 발생",
+                    title: "현장 도착",
+                    speaker: "내레이션",
+                    content: "첨단 기술로 무장한 스마트 맨션. 피해자는 강박사(58세), 컴퓨터 공학 교수입니다."
+                },
+                {
+                    image: 'game/images/scenes/scene_03.png',
+                    phase: "Phase 1: 사건 발생",
+                    title: "사건 브리핑",
+                    speaker: "내레이션",
+                    content: "지하 연구실에서 강박사가 로봇 팔에 목이 눌려 사망. 현장에는 두 명의 관련자가 있습니다."
+                },
+                {
+                    image: 'game/images/scenes/scene_04.png',
+                    phase: "Phase 1: 사건 발생",
+                    title: "수사 방향 선택",
+                    speaker: "진",
+                    content: "세 가지 접근 방식이 있다. 어떤 방향으로 수사할까?",
+                    choices: [
+                        "🔬 과학적 분석에 집중한다",
+                        "🕵️ 숨겨진 음모를 추적한다",
+                        "💭 인간관계를 파악한다"
+                    ],
+                    choice_types: ['detective', 'conspiracy', 'drama']
+                }
+            ],
+
+            // Detective Path
+            detective: [
+                {
+                    image: 'game/images/scenes/detective_01.png',
+                    phase: "🕵️ Detective - Phase 1: 과학적 분석",
+                    title: "섬유 분석",
+                    speaker: "진",
+                    content: "현미경으로 로봇 팔에서 발견된 섬유를 분석해보자. 이 작은 조각이 사건의 열쇠가 될 수 있어."
+                },
+                {
+                    image: 'game/images/scenes/detective_02.png',
+                    phase: "🕵️ Detective - Phase 1: 과학적 분석",
+                    title: "3D 구조 분석",
+                    speaker: "진",
+                    content: "로봇 팔의 구조를 3D로 분석해보자. 이 관절 부분... 중력에 의해 자동으로 닫히는 구조로 되어 있어."
+                },
+                {
+                    image: 'game/images/scenes/detective_03.png',
+                    phase: "🕵️ Detective - Phase 1: 과학적 분석",
+                    title: "심박수 데이터",
+                    speaker: "진",
+                    content: "유지민의 스마트워치 데이터를 타임라인과 대조해보자. 20시 55분에 심박수가 급상승했어."
+                },
+                {
+                    image: 'game/images/scenes/detective_04.png',
+                    phase: "🕵️ Detective - Phase 2: 논리적 추론",
+                    title: "증거 연결",
+                    speaker: "진",
+                    content: "모든 증거를 연결해보자. 물리적 증거, 시간, 그리고 동기...",
+                    choices: [
+                        "증거를 더 수집한다",
+                        "심리적 압박을 가한다"
+                    ],
+                    choice_types: ['evidence_route', 'interrogation_route']
+                },
+                {
+                    image: 'game/images/scenes/detective_06.png',
+                    phase: "🕵️ Detective - Phase 2: 증거 수집",
+                    title: "포렌식 분석",
+                    speaker: "진",
+                    content: "고급 분석 소프트웨어로 3D 재구성을 해보자. 여기야! 이 지점에서 넥타이가 걸렸고...",
+                    branch: "evidence_route"
+                },
+                {
+                    image: 'game/images/scenes/detective_11.png',
+                    phase: "🕵️ Detective - Phase 2: 심문",
+                    title: "논리적 압박",
+                    speaker: "진",
+                    content: "증거는 명확해요, 유지민씨. 과학적 분석 결과를 부정할 수 있나요?",
+                    branch: "interrogation_route"
+                },
+                {
+                    image: 'game/images/scenes/detective_05.png',
+                    phase: "🕵️ Detective - Phase 3: 법정 승리",
+                    title: "진실 규명",
+                    speaker: "진",
+                    content: "존경하는 재판장님, 과학적 증거는 명확합니다. 물리학은 거짓말을 하지 않습니다.",
+                    ending: "논리의 승리"
+                }
+            ],
+
+            // Conspiracy Path
+            conspiracy: [
+                {
+                    image: 'game/images/scenes/conspiracy_01.png',
+                    phase: "🎭 Conspiracy - Phase 1: 숨겨진 진실",
+                    title: "군사 기밀 발견",
+                    speaker: "진",
+                    content: "잠깐, 이 연구 데이터... 이건 단순한 산업용 로봇이 아니야. 군사용 자율 무기 시스템..."
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_02.png',
+                    phase: "🎭 Conspiracy - Phase 1: 숨겨진 진실",
+                    title: "한기태의 정체",
+                    speaker: "한기태",
+                    content: "더 이상 숨길 필요가 없겠군. 나는 국가정보원 소속이다. 이 프로젝트는 국가기밀사업이었어."
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_03.png',
+                    phase: "🎭 Conspiracy - Phase 1: 숨겨진 진실",
+                    title: "유지민의 고백",
+                    speaker: "유지민",
+                    content: "이 USB에 모든 게 담겨 있어요. 정부와 기업이 손잡고 불법 무기를 개발하고 있었어요."
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_06.png',
+                    phase: "🎭 Conspiracy - Phase 2: 위험한 추적",
+                    title: "추적 방향 선택",
+                    speaker: "진",
+                    content: "거대한 음모의 실체가 드러나고 있다. 어느 쪽을 먼저 파헤칠까?",
+                    choices: [
+                        "정부 연결고리를 추적한다",
+                        "기업 네트워크를 조사한다"
+                    ],
+                    choice_types: ['government_route', 'corporate_route']
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_07.png',
+                    phase: "🎭 Conspiracy - Phase 2: 정부 추적",
+                    title: "서버실 침입",
+                    speaker: "진",
+                    content: "여기가 모든 데이터가 저장된 곳이군. 정부와 기업이 얼마나 깊이 연루되어 있는지...",
+                    branch: "government_route"
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_09.png',
+                    phase: "🎭 Conspiracy - Phase 2: 기업 추적",
+                    title: "증거 인멸",
+                    speaker: "기업 임원",
+                    content: "모든 하드 드라이브를 파기해! 서류는 다 소각하고!",
+                    branch: "corporate_route"
+                },
+                {
+                    image: 'game/images/scenes/conspiracy_13.png',
+                    phase: "🎭 Conspiracy - Phase 3: 거대한 폭로",
+                    title: "진실 폭로",
+                    speaker: "앵커",
+                    content: "충격적인 사실이 밝혀졌습니다. 정부와 대기업의 불법 AI 무기 개발...",
+                    ending: "거대한 그림자"
+                }
+            ],
+
+            // Drama Path
+            drama: [
+                {
+                    image: 'game/images/scenes/drama_01.png',
+                    phase: "💔 Drama - Phase 1: 감정의 발견",
+                    title: "과거의 기억",
+                    speaker: "유지민",
+                    content: "강박사님과 함께 연구하던 시절이 그리워요... 그때는 정말 행복했어요."
+                },
+                {
+                    image: 'game/images/scenes/drama_02.png',
+                    phase: "💔 Drama - Phase 1: 감정의 발견",
+                    title: "옛 연인의 발견",
+                    speaker: "진",
+                    content: "이 사진... 유지민씨와 한기태씨가 함께 있는 모습이네요. 과거에 특별한 관계였나요?"
+                },
+                {
+                    image: 'game/images/scenes/drama_03.png',
+                    phase: "💔 Drama - Phase 1: 감정의 발견",
+                    title: "고백의 순간",
+                    speaker: "유지민",
+                    content: "전 정말로... 정말로 강박사님을 죽이려던 게 아니었어요! 으흑..."
+                },
+                {
+                    image: 'game/images/scenes/drama_06.png',
+                    phase: "💔 Drama - Phase 2: 복잡한 관계",
+                    title: "접근 방향 선택",
+                    speaker: "진",
+                    content: "복잡한 인간관계가 얽혀있다. 어떤 방식으로 접근할까?",
+                    choices: [
+                        "유지민의 과거를 깊이 파본다",
+                        "한기태와의 관계를 중재한다"
+                    ],
+                    choice_types: ['emotional_route', 'relationship_route']
+                },
+                {
+                    image: 'game/images/scenes/drama_07.png',
+                    phase: "💔 Drama - Phase 2: 감정 탐구",
+                    title: "강박사의 일기",
+                    speaker: "진",
+                    content: "강박사의 일기... '유지민에 대한 마음을 고백할 수 없어서...' 일방적인 사랑이었군요.",
+                    branch: "emotional_route"
+                },
+                {
+                    image: 'game/images/scenes/drama_08.png',
+                    phase: "💔 Drama - Phase 2: 관계 회복",
+                    title: "과거와의 대면",
+                    speaker: "유지민",
+                    content: "기태오빠... 왜 그때 아무 말 없이 떠났어요?",
+                    branch: "relationship_route"
+                },
+                {
+                    image: 'game/images/scenes/drama_13.png',
+                    phase: "💔 Drama - Phase 3: 용서와 구원",
+                    title: "인간적 판단",
+                    speaker: "진",
+                    content: "법적으로는 유죄지만... 이 사건의 본질은 다르군요. 치료가 우선이에요.",
+                    ending: "마음의 진실"
+                }
+            ]
+        };
+
+        function showDialogue() {
+            let currentData;
+
+            if (selectedPath === null) {
+                // 공통 도입부
+                if (currentDialogue >= dialogues.common.length) {
+                    showDialogue(); // 경로 선택으로 이동
+                    return;
+                }
+                currentData = dialogues.common[currentDialogue];
+            } else {
+                // 선택된 경로의 대사
+                const pathDialogues = dialogues[selectedPath];
+                const adjustedIndex = currentDialogue - dialogues.common.length;
+
+                if (adjustedIndex >= pathDialogues.length) {
+                    // 게임 완료
+                    showGameComplete();
+                    return;
+                }
+
+                currentData = pathDialogues[adjustedIndex];
+
+                // 분기 필터링 (branch가 있는 경우)
+                if (currentData.branch && !currentData.branch.includes(getSubBranch())) {
+                    nextDialogue();
+                    return;
+                }
+            }
+
+            // 배경 이미지 표시
+            showDialogueImage(currentData.image);
+
+            // UI 업데이트
+            document.getElementById('phaseIndicator').textContent = currentData.phase;
+            document.getElementById('sceneNumber').textContent = currentData.title;
+            document.getElementById('characterName').textContent = currentData.speaker || "내레이션";
+            document.getElementById('dialogueText').innerHTML = currentData.content;
+
+            // 경로 표시기 업데이트
+            updatePathIndicator();
+
+            // 진행률 업데이트
+            updateProgress();
+
+            // 엔딩 표시
+            if (currentData.ending) {
+                showEnding(currentData.ending);
+            }
+
+            // 선택지 처리
+            if (currentData.choices) {
+                showChoices(currentData.choices, currentData.choice_types);
+                document.getElementById('vnContinue').style.display = 'none';
+            } else {
+                hideChoices();
+                document.getElementById('vnContinue').style.display = 'flex';
+            }
+        }
+
+        function showDialogueImage(imagePath) {
+            const imageElement = document.getElementById('sceneImage');
+            if (imagePath) {
+                imageElement.style.display = 'block';
+                imageElement.src = imagePath;
+                imageElement.onload = () => console.log(`✅ Image loaded: ${imagePath}`);
+                imageElement.onerror = () => {
+                    console.log(`⚠️ Image not found: ${imagePath}`);
+                    // 기본 이미지로 대체
+                    imageElement.src = 'game/images/scenes/scene_01.png';
+                };
+            } else {
+                imageElement.style.display = 'none';
+            }
+        }
+
+        function showChoices(choices, choiceTypes) {
+            const choicesDiv = document.getElementById('vnChoices');
+            choicesDiv.innerHTML = '';
+            choicesDiv.style.display = 'block';
+
+            choices.forEach((choice, index) => {
+                const choiceDiv = document.createElement('div');
+                choiceDiv.className = 'vn-choice';
+
+                if (choiceTypes) {
+                    const choiceType = choiceTypes[index];
+                    if (['detective', 'evidence_route', 'interrogation_route'].includes(choiceType)) {
+                        choiceDiv.classList.add('choice-detective');
+                    } else if (['conspiracy', 'government_route', 'corporate_route'].includes(choiceType)) {
+                        choiceDiv.classList.add('choice-conspiracy');
+                    } else if (['drama', 'emotional_route', 'relationship_route'].includes(choiceType)) {
+                        choiceDiv.classList.add('choice-drama');
+                    }
+                }
+
+                choiceDiv.textContent = choice;
+                choiceDiv.onclick = () => handleChoice(index, choiceTypes);
+                choicesDiv.appendChild(choiceDiv);
+            });
+        }
+
+        function hideChoices() {
+            document.getElementById('vnChoices').style.display = 'none';
+        }
+
+        function handleChoice(choiceIndex, choiceTypes) {
+            if (choiceTypes) {
+                const choiceType = choiceTypes[choiceIndex];
+
+                // 메인 경로 선택
+                if (['detective', 'conspiracy', 'drama'].includes(choiceType)) {
+                    selectedPath = choiceType;
+                    currentDialogue = dialogues.common.length; // 공통부 건너뛰기
+                } else {
+                    // 서브 분기 설정
+                    setSubBranch(choiceType);
+                }
+
+                // 선택 피드백 표시
+                showChoiceFeedback(choiceType);
+            }
+
+            setTimeout(() => {
+                nextDialogue();
+            }, 1500);
+        }
+
+        function showChoiceFeedback(choiceType) {
+            const pathNames = {
+                detective: "🕵️ Detective Path - 논리의 승리",
+                conspiracy: "🎭 Conspiracy Path - 거대한 그림자",
+                drama: "💔 Human Drama Path - 마음의 진실",
+                evidence_route: "증거 수집 경로",
+                interrogation_route: "심문 경로",
+                government_route: "정부 음모 추적",
+                corporate_route: "기업 부패 추적",
+                emotional_route: "감정적 탐구",
+                relationship_route: "관계 회복 집중"
+            };
+
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'choice-feedback';
+            feedbackDiv.innerHTML = `🎯 선택: ${pathNames[choiceType] || choiceType}`;
+
+            const dialogueBox = document.querySelector('.vn-dialogue-box');
+            dialogueBox.appendChild(feedbackDiv);
+        }
+
+        function updatePathIndicator() {
+            const pathIndicator = document.getElementById('pathIndicator');
+
+            if (selectedPath) {
+                const pathNames = {
+                    detective: "🕵️ Detective Path",
+                    conspiracy: "🎭 Conspiracy Path",
+                    drama: "💔 Drama Path"
+                };
+
+                pathIndicator.textContent = pathNames[selectedPath];
+                pathIndicator.className = `vn-path-indicator path-${selectedPath}`;
+                pathIndicator.style.display = 'inline-block';
+            } else {
+                pathIndicator.style.display = 'none';
+            }
+        }
+
+        function updateProgress() {
+            let totalScenes;
+            let currentProgress;
+
+            if (selectedPath === null) {
+                totalScenes = dialogues.common.length;
+                currentProgress = currentDialogue + 1;
+            } else {
+                totalScenes = dialogues.common.length + dialogues[selectedPath].length;
+                currentProgress = dialogues.common.length + (currentDialogue - dialogues.common.length) + 1;
+            }
+
+            const progress = (currentProgress / totalScenes) * 100;
+            document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
+        }
+
+        function showEnding(endingTitle) {
+            const endingDiv = document.getElementById('endingTitle');
+            endingDiv.textContent = endingTitle;
+            endingDiv.classList.remove('hidden');
+
+            setTimeout(() => {
+                endingDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showGameComplete() {
+            document.getElementById('vnContinue').innerHTML = '<div class="continue-indicator">🔄</div>';
+            document.getElementById('vnContinue').onclick = () => restartGame();
+
+            const dialogueBox = document.querySelector('.vn-dialogue-box .vn-text');
+            dialogueBox.innerHTML = `
+                <strong>게임 완료!</strong><br>
+                다른 경로를 선택해서 다른 엔딩을 경험해보세요.<br>
+                🔄 버튼을 클릭하면 처음부터 다시 시작합니다.
+            `;
+        }
+
+        function nextDialogue() {
+            currentDialogue++;
+            showDialogue();
+        }
+
+        function restartGame() {
+            currentDialogue = 0;
+            selectedPath = null;
+            pathPhase = 1;
+
+            // UI 초기화
+            document.getElementById('pathIndicator').style.display = 'none';
+            document.getElementById('endingTitle').classList.add('hidden');
+
+            // 계속하기 버튼 복원
+            document.getElementById('vnContinue').innerHTML = '<div class="continue-indicator">▶</div>';
+            document.getElementById('vnContinue').onclick = () => nextDialogue();
+
+            showDialogue();
+        }
+
+        // 서브 분기 관리
+        let subBranch = null;
+
+        function setSubBranch(branch) {
+            subBranch = branch;
+        }
+
+        function getSubBranch() {
+            return subBranch;
+        }
+
+        // 게임 시작
+        showDialogue();
+    </script>
+</body>
+</html>
