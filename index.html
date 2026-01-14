@@ -2,7 +2,11 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
     <title>0의 집행</title>
     <style>
         * {
@@ -14,7 +18,11 @@
         body, html {
             font-family: 'Segoe UI', 'Noto Sans CJK KR', sans-serif;
             height: 100%;
+            height: calc(var(--vh, 1vh) * 100);
             overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         /* 메인 컨테이너 */
@@ -22,7 +30,9 @@
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
             background: #000;
+            overflow: hidden;
         }
 
         /* 풀스크린 배경 이미지 */
@@ -249,7 +259,7 @@
             animation: fadeIn 1s ease;
         }
 
-        /* 반응형 */
+        /* 반응형 - 태블릿 */
         @media (max-width: 768px) {
             .vn-dialogue-container {
                 padding: 15px;
@@ -260,7 +270,182 @@
             }
 
             .vn-progress {
-                width: 300px;
+                width: 80%;
+                max-width: 300px;
+            }
+
+            .vn-title {
+                font-size: 1.3em;
+            }
+
+            .vn-text {
+                font-size: 1em;
+            }
+
+            .vn-choice {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+        }
+
+        /* 반응형 - 모바일 */
+        @media (max-width: 480px) {
+            .vn-header {
+                padding: 10px 15px;
+            }
+
+            .vn-title {
+                font-size: 1.1em;
+            }
+
+            .vn-progress {
+                width: 100%;
+                max-width: none;
+                height: 3px;
+            }
+
+            .vn-scene-info {
+                font-size: 0.8em;
+            }
+
+            .vn-dialogue-container {
+                padding: 10px;
+                min-height: 180px;
+                max-height: 50vh;
+                overflow-y: auto;
+            }
+
+            .vn-character-name {
+                padding: 6px 15px;
+                font-size: 0.85em;
+            }
+
+            .vn-dialogue-box {
+                padding: 15px;
+                min-height: 80px;
+            }
+
+            .vn-text {
+                font-size: 0.9em;
+                line-height: 1.5;
+            }
+
+            .vn-choices {
+                margin-top: 10px;
+            }
+
+            .vn-choice {
+                padding: 12px 18px;
+                margin: 8px 0;
+                font-size: 0.9em;
+                border-radius: 20px;
+                /* 터치 친화적 크기 */
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .vn-continue {
+                bottom: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+            }
+
+            .continue-indicator {
+                font-size: 1em;
+            }
+
+            .ending-title {
+                font-size: 1.3em;
+                padding: 20px 30px;
+                width: 90%;
+                max-width: 300px;
+            }
+        }
+
+        /* 매우 작은 화면 */
+        @media (max-width: 360px) {
+            .vn-title {
+                font-size: 1em;
+            }
+
+            .vn-dialogue-container {
+                min-height: 160px;
+            }
+
+            .vn-text {
+                font-size: 0.85em;
+            }
+
+            .vn-choice {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+        }
+
+        /* 가로 모드 모바일 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .vn-header {
+                padding: 8px 15px;
+            }
+
+            .vn-title {
+                font-size: 1em;
+            }
+
+            .vn-progress {
+                margin: 5px 0 3px 0;
+            }
+
+            .vn-dialogue-container {
+                min-height: 120px;
+                max-height: 45vh;
+            }
+
+            .vn-dialogue-box {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+
+            .vn-text {
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+
+            .vn-choice {
+                padding: 8px 15px;
+                margin: 5px 0;
+            }
+        }
+
+        /* 터치 디바이스용 호버 효과 제거 */
+        @media (hover: none) and (pointer: coarse) {
+            .vn-choice:hover {
+                transform: none;
+                border-color: transparent;
+            }
+
+            .vn-continue:hover {
+                transform: none;
+            }
+
+            /* 터치 피드백 */
+            .vn-choice:active {
+                transform: scale(0.98);
+                opacity: 0.9;
+            }
+
+            .vn-continue:active {
+                transform: scale(0.95);
+            }
+        }
+
+        /* iOS 사파리 safe area 지원 */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .vn-dialogue-container {
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -1088,6 +1273,50 @@
 
             showDialogue();
         }
+
+        // 터치/클릭으로 다음 대화 진행 (대화 박스 영역)
+        document.querySelector('.vn-dialogue-box').addEventListener('click', function(e) {
+            // 선택지가 표시되지 않은 경우에만 다음으로
+            if (document.getElementById('vnChoices').style.display === 'none' ||
+                document.getElementById('vnChoices').innerHTML === '') {
+                nextDialogue();
+            }
+        });
+
+        // 터치 이벤트 지원 (더블 탭 방지)
+        let lastTap = 0;
+        document.querySelector('.vn-dialogue-box').addEventListener('touchend', function(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault();
+                return;
+            }
+            lastTap = currentTime;
+        });
+
+        // 키보드 지원 (스페이스바, 엔터로 진행)
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                // 선택지가 표시되지 않은 경우에만
+                if (document.getElementById('vnChoices').style.display === 'none' ||
+                    document.getElementById('vnChoices').innerHTML === '') {
+                    e.preventDefault();
+                    nextDialogue();
+                }
+            }
+        });
+
+        // 모바일 주소창 높이 문제 해결
+        function setMobileHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setMobileHeight();
+        window.addEventListener('resize', setMobileHeight);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(setMobileHeight, 100);
+        });
 
         // 게임 시작
         showDialogue();
